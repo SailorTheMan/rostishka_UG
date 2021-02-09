@@ -1,29 +1,34 @@
 import requests
 import json
-import sqlite3
-from sqlite3 import Error
-import time
+from time import sleep
 
 
 
+def put_by_name(name, data):
+    # отправляет data в value тега name
+    if data == 1: data = "true"
+    if data == 0: data = "false"
+    payload = [
+    {
+        "name": name,
+        "value": data
+    },
+    ]
+    requests.put('http://127.0.0.1:7410/api/tag/values/by-name', json=payload)
 
-def create_connection(db_file):
-    """ create a database connection to a SQLite database """
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-    except Error as e:
-        print(e)
-    finally:
-        if conn:
-            conn.close()
+def get_value(name):
+    # возвращает значение value тега name
+    status = requests.get(f'http://127.0.0.1:7410/api/tags/by-name/{name}')
+    return status.json()[0]['value']
+
+    
 
 
 def spam_stackable_box():
     payload = [
     {
-        "name": "Emitter 1 (Part)",
-        "value": 8192
+        "name": "Emitter 1 (Base)",
+        "value": 2
     },
     {
         "name": "Emitter 1 (Emit)",
@@ -32,7 +37,7 @@ def spam_stackable_box():
     ]
 
     requests.put('http://127.0.0.1:7410/api/tag/values/by-name', json=payload)
-    time.sleep(1)
+    sleep(0.1)
     payload = [
     {
         "name": "Emitter 1 (Part)",
@@ -60,7 +65,7 @@ def add_new_RFID():
     ]
 
     requests.put('http://127.0.0.1:7410/api/tag/values/by-name', json=payload)
-    time.sleep(1)
+    sleep(0.1)
     rfid_data = requests.get('http://127.0.0.1:7410/api/tags/by-name/RFID In Read Data')
     rfid_error = requests.get('http://127.0.0.1:7410/api/tags/by-name/RFID In Status')
     
@@ -143,7 +148,7 @@ def item_to_first_crane():
     },
     ]
     requests.put('http://127.0.0.1:7410/api/tag/values/by-name', json=payload)
-    time.sleep(2)
+    sleep(4)
     payload = [
     {
         "name": "CT 1 (+)",
@@ -234,11 +239,53 @@ def item_to_first_crane():
             break
 
 
+def item_to_shelf(number):
+    # put pallet to rack
+    # вилка берет палет
+    put_by_name("Forks Left A", 1)
+    # ждем пока вилка вытащится
+    while(not(get_value("At Left A"))): sleep(0.05)
+    # поднимаем
+    put_by_name("Lift A", 1)
+    # ждем пока вилка поднимится
+    sleep(0.1)
+    while(not(get_value("Moving Z A"))): sleep(0.05)
+    # втягиваем обратно
+    put_by_name("Forks Left A", 0)
+    # ждем
+    while(not((get_value("At Middle A")))): sleep(0.05)
+
+    put_by_name("Target Position A", number)
+    sleep(0.1)
+    while(get_value("Moving Z A") and get_value("Moving X A")): sleep(0.05)
+    
+    # вилка берет палет
+    put_by_name("Forks Left A", 1)
+    # ждем пока вилка вытащится
+    while(not(get_value("At Left A"))): sleep(0.05)
+    put_by_name("Lift A", 0)
+    # ждем пока вилка поднимится
+    sleep(0.1)
+    while(get_value("Moving Z A")): sleep(0.05)
+    # втягиваем обратно
+    put_by_name("Forks Left A", 0)
+    # ждем
+    while(not((get_value("At Middle A")))): sleep(0.05)
+
+    put_by_name("Target Position A", 55)
+    sleep(0.1)
+    while(get_value("Moving Z A") and get_value("Moving X A")): sleep(0.05)
 
 
-# create_connection("C:\\nti_ug_test\\test.db")
+
+
+
+
 spam_stackable_box()
 wait_first_rs()
 add_new_RFID()
 
 item_to_first_crane()
+
+item_to_shelf(2)
+
