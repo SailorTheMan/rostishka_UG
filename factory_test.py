@@ -5,6 +5,18 @@ from sqlite3 import Error
 import time
 
 
+import FactoryController as fio
+
+SIM_ADDRESS = 'http://192.168.220.129:7410'    #my VM address
+
+def spawn_stackable_box():
+    em1_part.set_value(8192)
+    em1_emit.set_value('true')
+
+    time.sleep(1)
+
+    em1_part.set_value(8192)
+    em1_emit.set_value('false')
 
 
 def create_connection(db_file):
@@ -18,34 +30,6 @@ def create_connection(db_file):
         if conn:
             conn.close()
 
-
-def spam_stackable_box():
-    payload = [
-    {
-        "name": "Emitter 1 (Part)",
-        "value": 8192
-    },
-    {
-        "name": "Emitter 1 (Emit)",
-        "value": "true"
-    },
-    ]
-
-    requests.put('http://127.0.0.1:7410/api/tag/values/by-name', json=payload)
-    time.sleep(1)
-    payload = [
-    {
-        "name": "Emitter 1 (Part)",
-        "value": 8192
-    },
-    {
-        "name": "Emitter 1 (Emit)",
-        "value": "false"
-    },
-    ]
-
-    requests.put('http://127.0.0.1:7410/api/tag/values/by-name', json=payload)
-  
 
 def add_new_RFID():
     payload = [
@@ -85,23 +69,12 @@ def add_new_RFID():
 def wait_first_rs():
     # Start conveyor (RC (4m) 1.1), wait item on "RS 1 In" laser sensor and stop conveyor
 
-    payload = [
-    {
-        "name": "RC (4m) 1.1",
-        "value": "true"
-    },
-    ]
-    requests.put('http://127.0.0.1:7410/api/tag/values/by-name', json=payload)
+    rc_input.set_value('true')
+
     while(True):
-        rs_status = requests.get('http://127.0.0.1:7410/api/tags/by-name/RS 1 In')
-        if (rs_status.json()[0]['value'] != True):
-            payload = [
-            {
-                "name": "RC (4m) 1.1",
-                "value": "false"
-            },
-            ]
-            requests.put('http://127.0.0.1:7410/api/tag/values/by-name', json=payload)
+        rs_status = rs1_in.get_value()
+        if (rs_status != True):
+            rc_input.set_value('false')
             break
 
 
@@ -237,8 +210,25 @@ def item_to_first_crane():
 
 
 # create_connection("C:\\nti_ug_test\\test.db")
-spam_stackable_box()
-wait_first_rs()
-add_new_RFID()
+if __name__ == '__main__':
+    controller = fio.FIO_Controller(SIM_ADDRESS)
+    ##  Tag declaration
+    print('Tag declaration')
+    em1_part = controller.attach_tag('Emitter 1 (Part)')
+    em1_emit = controller.attach_tag('Emitter 1 (Emit)')
+    rc_input = controller.attach_tag('RC (4m) 1.1')
+    rs1_in = controller.attach_tag('RS 1 In')
 
-item_to_first_crane()
+    controller.fetch_tags()
+    ##
+    print('Spawn box')
+    #spawn_stackable_box()
+    wait_first_rs()
+
+    '''
+    spam_stackable_box()
+    wait_first_rs()
+    add_new_RFID()
+
+    item_to_first_crane()
+    '''
