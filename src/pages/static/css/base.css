@@ -1,0 +1,113 @@
+body{
+  background-color: #F6FBFF;
+  color:#050F27;
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: normal;
+}
+
+/* NAVBAR */
+.navbar .navbar-nav .nav-link{
+  color:#050F27;
+}
+
+.navbar .navbar-nav .nav-link .active{
+  color:#319CFF;
+}
+
+.navbar .navbar-nav .nav-link:hover{
+  color:#319CFF;
+}
+
+.navbar .login-btn{
+  background-color: #319CFF;
+  width: 210px;
+  height: 50px;
+  padding:10px;
+}
+
+.navbar .login-btn .fst-row{
+  font-size: 14px;
+  margin: 0;
+}
+.navbar .login-btn .snd-row{
+  font-size: 9px;
+  margin: 0;
+}
+.navbar-nav{
+  justify-content: space-between;
+}
+
+/* HOME_ABOUT */
+
+.about{
+  background: #E5E5E5;
+}
+
+.about h3{
+  color:#1158FF;
+  font-size: 35px;
+}
+
+/* HOW IT WORKS */
+
+.how-it-works{
+  background: #E5E5E5;
+}
+
+.how-it-works .container{
+  position:relative;
+}
+
+.adv-1, .adv-2, .adv-3{
+
+  position: absolute;
+}
+
+.adv-1{
+  top:200px;
+  left:0;
+  right:0;
+  bottom: 0;
+}
+
+.adv-2{
+  top:100px;
+  left:400px;
+  right:0;
+  bottom: 0;
+}
+
+.adv-3{
+  top:50px;
+  left:800px;
+  right:0;
+  bottom: 0;
+}
+
+.phrase{
+  background-color: #319CFF;
+}
+
+.phrase .card{
+  background-color:transparent;
+  border: 0;
+}
+
+
+/* FOOTER */
+
+footer{
+  background-color: #050F27;
+  color:#fff;
+}
+
+footer a{
+  color:white;
+  text-decoration: None;
+}
+
+footer a:hover{
+  color:white;
+  text-decoration: None;
+}
