@@ -26,6 +26,7 @@ class Tag:
     def __init__(self, address, name):
         self.name = name
         self.address = address
+
     
     def get_value(self):
         self.last_value = requests.get(self.address+'/api/tags?name='+self.name).json()[0]['value']
@@ -33,16 +34,16 @@ class Tag:
 
     def set_value(self, value):
         if value == False:
-            value = 'false'
+            value = "false"
         if value == True:
-            value = 'true'
+            value = "true"
 
         payload = [
         {
             "name": self.name,
             "value": value
         },        ]
-
+        print(payload)
         requests.put(self.address+'/api/tags?name='+self.name, json=payload)
 
 
@@ -51,12 +52,27 @@ class FIO_Controller:
     def __init__(self, address):
         self.address = address
         self.tag_table = []
-        
+
+        self.run = self.attach_tag("FACTORY I/O (Run)")
+
+    # creates new tag object
     def attach_tag(self, tag_name):
         temp_tag = Tag(self.address, tag_name)
         self.tag_table.append(temp_tag)
         return temp_tag
+        
+    ### WRITES BY-NAME
+    def batch_write(self, payload)
+        requests.put(self.address+'/api//tag/values/by-name', json=payload)
     
     def fetch_tags(self):
         for tg in self.tag_table:
             tg.get_value()
+
+    def sim_start(self):
+        self.run.set_value("true")
+    
+    def sim_pause(self):
+        pass
+
+

@@ -11,12 +11,12 @@ SIM_ADDRESS = 'http://192.168.220.129:7410'    #my VM address
 
 def spawn_stackable_box():
     em1_part.set_value(8192)
-    em1_emit.set_value('true')
+    em1_emit.set_value("true")
 
     time.sleep(1)
 
     em1_part.set_value(8192)
-    em1_emit.set_value('false')
+    em1_emit.set_value("false")
 
 
 def create_connection(db_file):
@@ -69,12 +69,13 @@ def add_new_RFID():
 def wait_first_rs():
     # Start conveyor (RC (4m) 1.1), wait item on "RS 1 In" laser sensor and stop conveyor
 
-    rc_input.set_value('true')
+    rc_input.set_value("true")
 
     while(True):
+
         rs_status = rs1_in.get_value()
         if (rs_status != True):
-            rc_input.set_value('false')
+            rc_input.set_value("false")
             break
 
 
@@ -115,7 +116,8 @@ def item_to_first_crane():
         "value": "true"
     },
     ]
-    requests.put('http://127.0.0.1:7410/api/tag/values/by-name', json=payload)
+    controller.batch_write(payload)
+
     time.sleep(2)
     payload = [
     {
@@ -135,10 +137,12 @@ def item_to_first_crane():
         "value": "true"
     },
     ]
-    requests.put('http://127.0.0.1:7410/api/tag/values/by-name', json=payload)
+
+    controller.batch_write(payload)            ### requests.put('http://127.0.0.1:7410/api/tag/values/by-name', json=payload)
+
     while (True):
-        rs_1a_status = requests.get('http://127.0.0.1:7410/api/tags/by-name/RS 1A Out')
-        if (rs_1a_status.json()[0]['value'] != True):
+        rs_1a_status = rs1_out.get_value()
+        if (rs_1a_status != True):
             payload = [
             {
                 "name": "StopR 1 Out",
@@ -157,7 +161,7 @@ def item_to_first_crane():
                 "value": "false"
             },
             ]
-            requests.put('http://127.0.0.1:7410/api/tag/values/by-name', json=payload)
+            controller.batch_write(payload)  
             break
     payload = [
     {
@@ -177,10 +181,11 @@ def item_to_first_crane():
         "value": "true"
     },
     ]
-    requests.put('http://127.0.0.1:7410/api/tag/values/by-name', json=payload)
+    controller.batch_write(payload)  
+
     while (True):
-        at_load_a_status = requests.get('http://127.0.0.1:7410/api/tags/by-name/At Load A')
-        if (at_load_a_status.json()[0]['value'] != True):
+        at_load_a_status = al_a.get_value()
+        if (at_load_a_status != True):
             payload = [
             {
                 "name": "RC A1",
@@ -203,7 +208,7 @@ def item_to_first_crane():
                 "value": "false"
             },
             ]
-            requests.put('http://127.0.0.1:7410/api/tag/values/by-name', json=payload)
+            controller.batch_write(payload)  
             break
 
 
@@ -218,16 +223,20 @@ if __name__ == '__main__':
     em1_emit = controller.attach_tag('Emitter 1 (Emit)')
     rc_input = controller.attach_tag('RC (4m) 1.1')
     rs1_in = controller.attach_tag('RS 1 In')
+    rs1_out = controller.attach_tag('RS 1A Out')
+    al_a = controller.attach_tag('At Load A')
+    
 
+    controller.sim_start()
     controller.fetch_tags()
     ##
     print('Spawn box')
-    #spawn_stackable_box()
+
+    spawn_stackable_box()
+    
     wait_first_rs()
 
     '''
-    spam_stackable_box()
-    wait_first_rs()
     add_new_RFID()
 
     item_to_first_crane()
