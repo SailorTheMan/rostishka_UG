@@ -11,10 +11,10 @@ SIM_ADDRESS = 'http://192.168.220.129:7410'    #my VM address
 
 
 def loop():
-    controller.fetch_tags()
     global cargo_spawned_recently
     global entrance_rfid_read
     ## check pending DB entries
+
 
     
     ## start conveyor after fresh spawn
@@ -49,18 +49,22 @@ def loop():
     
     # crossing conveyor entrance
     if entrance_rfid_read == True:
-        rc_input.value = True
         ct1_plus.value = True
+        if rs1_in.value == False:
+            rc_input.value = True
+        
 
     # crossing conveyor 
     if cs_1.value == True:
+        print('stop CC')
         ct1_plus.value = False
+        rc_input.value = False
 
     
 
     
 
-    controller.push_tags()
+    
 
 
 
@@ -81,7 +85,7 @@ if __name__ == '__main__':
     rfid_stat = controller.attach_tag("RFID In Status")
     ## crossing conveyor entrance
     ct1_plus = controller.attach_tag("CT 1 (+)", tag_id='17862cd4-a781-4ee8-8f5b-12543abc0c12')
-    
+    ct1_plus.set_value(True)
     cs_1 = controller.attach_tag("CS 1")
     
    
@@ -104,6 +108,9 @@ if __name__ == '__main__':
     em1_emit.set_value("false")
     cargo_spawned_recently += 1
 
+
     while(True):
+        controller.fetch_tags()         ### <- updates tags in the beginnig
         loop()
+        controller.push_tags()          ### <- updates tags in the end
     

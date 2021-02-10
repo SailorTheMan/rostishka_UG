@@ -46,16 +46,18 @@ class Tag:
         
         #print(payload)
         if self.id != '':
-            query = self.address+'/api/tags/values'
+            query = self.address+'/api/tag/values'
             payload = [   {
-                "name": self.id,
-                "value": value
+                "id": self.id,
+                "value": self.value
             },        ]
+            print(query)
+            print(payload)
         else:
             query = self.address+'/api/tag/values/by-name'
             payload = [   {
                 "name": self.name,
-                "value": value
+                "value": self.value
             },        ]
         requests.put(query, json=payload)
 
