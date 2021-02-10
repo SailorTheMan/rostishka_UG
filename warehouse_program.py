@@ -13,6 +13,7 @@ SIM_ADDRESS = 'http://192.168.220.129:7410'    #my VM address
 def loop():
     controller.fetch_tags()
     global cargo_spawned_recently
+    global entrance_rfid_read
     ## check pending DB entries
 
     
@@ -20,20 +21,14 @@ def loop():
     if cargo_spawned_recently > 0:
         rc_input.value = True
 
-    ## arm scanner after fresh cargo spawn
-    #if cargo_spawned_recently > 0:
-    
-
-    ##   RFID read entrance
-    
-
-
 
     ## Entrance scanner routine
-    if rs1_in.value == False:
+    rfid_data = -1
+    if rs1_in.value == False and entrance_rfid_read == False:
         cargo_spawned_recently -= 1
+        # Stop conveyor
         rc_input.value = False
-
+        # RFID read on entrance 
         rfid_command.value = 1
         rfid_iec.value = 'true'
         
@@ -42,6 +37,7 @@ def loop():
 
         if (rfid_error == 0):
             print(rfid_data)
+            entrance_rfid_read = True
             #cargo_dict[rfid_data]          ## probably Cargo class needed
         elif (rfid_error == 1):
             print("Error No Tag")
@@ -50,6 +46,17 @@ def loop():
         else:
             print('Another Error')
         rfid_iec.value = 'true'
+    
+    # crossing conveyor entrance
+    if entrance_rfid_read == True:
+        rc_input.value = True
+        ct1_plus.value = True
+
+    # crossing conveyor 
+    if cs_1.value == True:
+        ct1_plus.value = False
+
+    
 
     
 
@@ -72,7 +79,10 @@ if __name__ == '__main__':
     rfid_iec = controller.attach_tag("RFID In Execute Command")
     rfid_iread = controller.attach_tag("RFID In Read Data")
     rfid_stat = controller.attach_tag("RFID In Status")
+    ## crossing conveyor entrance
+    ct1_plus = controller.attach_tag("CT 1 (+)", tag_id='17862cd4-a781-4ee8-8f5b-12543abc0c12')
     
+    cs_1 = controller.attach_tag("CS 1")
     
    
     
@@ -81,6 +91,7 @@ if __name__ == '__main__':
 
     ## 'global' variables
     cargo_spawned_recently = 0
+    entrance_rfid_read = False
 
     cargo_dict = {}
 

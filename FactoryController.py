@@ -19,13 +19,22 @@ import time
 '''
 class Tag:
 
-    def __init__(self, address, name):
+    def __init__(self, address, name, tag_id=''):
         self.name = name
         self.address = address
+        self.id = tag_id
+        
 
     
     def get_value(self):                            # dunno why but brakes encoding otherwise
-        self.value = requests.get(self.address+'/api/tags?name='+self.name).json()[0]['value']
+        if self.id != '':
+            query = self.address+'/api/tags/'+self.id
+            self.value = requests.get(query).json()['value']
+        else:
+            query = self.address+'/api/tags?name='+self.name
+            self.value = requests.get(query).json()[0]['value']
+        #print(query)
+        
         return(self.value)
 
     def set_value(self, value):
@@ -34,13 +43,21 @@ class Tag:
         if value == True:
             value = "true"
         self.value = value
-        payload = [
-        {
-            "name": self.name,
-            "value": value
-        },        ]
+        
         #print(payload)
-        requests.put(self.address+'/api/tag/values/by-name', json=payload)
+        if self.id != '':
+            query = self.address+'/api/tags/values'
+            payload = [   {
+                "name": self.id,
+                "value": value
+            },        ]
+        else:
+            query = self.address+'/api/tag/values/by-name'
+            payload = [   {
+                "name": self.name,
+                "value": value
+            },        ]
+        requests.put(query, json=payload)
 
 
 class FIO_Controller:
@@ -53,8 +70,8 @@ class FIO_Controller:
         #self.check_simstat()
 
     # creates new tag object
-    def attach_tag(self, tag_name):
-        temp_tag = Tag(self.address, tag_name)
+    def attach_tag(self, tag_name, tag_id=''):
+        temp_tag = Tag(self.address, tag_name, tag_id)
         self.tag_table.append(temp_tag)
         return temp_tag
         
