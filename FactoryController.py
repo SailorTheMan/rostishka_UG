@@ -51,8 +51,8 @@ class Tag:
                 "id": self.id,
                 "value": self.value
             },        ]
-            print(query)
-            print(payload)
+            #print(query)
+            #print(payload)
         else:
             query = self.address+'/api/tag/values/by-name'
             payload = [   {

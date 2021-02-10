@@ -13,9 +13,12 @@ SIM_ADDRESS = 'http://192.168.220.129:7410'    #my VM address
 def loop():
     global cargo_spawned_recently
     global entrance_rfid_read
+    global CT1_positioning_completed
+    global CT1A_positioning_completed
+    global CT1_CT1A_transit_process
     ## check pending DB entries
 
-
+    CT1_CT1A_transit_process = True
     
     ## start conveyor after fresh spawn
     if cargo_spawned_recently > 0:
@@ -50,16 +53,24 @@ def loop():
     # crossing conveyor entrance
     if entrance_rfid_read == True:
         ct1_plus.value = True
-        if rs1_in.value == False:
+        stop_ct1 = True                 # BLOCKS THE RS1_Out !!!!
+        if rs1_in.value == False:  # conveyot keeps on until line is clear
             rc_input.value = True
         
 
-    # crossing conveyor 
-    if cs_1.value == True:
-        print('stop CC')
+    # crossing conveyor change direction condition
+    if cs_1.value == True and rs1_in.value == True:
+        #print('stop CC')
         ct1_plus.value = False
         rc_input.value = False
+        entrance_rfid_read = False
+        CT1_positioning_completed = True
 
+    if cs_1.value == True and CT1_positioning_completed == True:
+        ct1_left.value = True
+        ct1a_right.value = True
+    if cs_1a.value == True:
+        ct1_left.value = False
     
 
     
@@ -85,16 +96,22 @@ if __name__ == '__main__':
     rfid_stat = controller.attach_tag("RFID In Status")
     ## crossing conveyor entrance
     ct1_plus = controller.attach_tag("CT 1 (+)", tag_id='17862cd4-a781-4ee8-8f5b-12543abc0c12')
-    ct1_plus.set_value(True)
+    ct1_left = controller.attach_tag("CT 1 Left")
     cs_1 = controller.attach_tag("CS 1")
-    
-   
+    stop_ct1 = controller.attach_tag("StopR 1 Out")
+    ## crossing conveyor next to entrance one
+    ct1a_right = controller.attach_tag("CT 1A Right")
+    cs_1a = controller.attach_tag("CS 1A")
+    #stop_ct2 = controller.attach_tag("StopR 1 Out")
     
     
     # controller.sim_start()     doesnt work as expected
 
     ## 'global' variables
     cargo_spawned_recently = 0
+    CT1_positioning_completed = False
+    CT1A_positioning_completed = False
+    CT1_CT1A_transit_process = False
     entrance_rfid_read = False
 
     cargo_dict = {}
