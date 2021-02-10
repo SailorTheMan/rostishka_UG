@@ -9,6 +9,8 @@ import FactoryController as fio
 SIM_ADDRESS = 'http://192.168.220.129:7410'    #my VM address
 
 def welcome():
+    global entrance_rfid_read
+
     rc_input.value = True
 
     if rs1_in.value == False:
@@ -34,6 +36,8 @@ def welcome():
         rfid_iec.value = 'true'
 
 def ct1_handler():
+    global entrance_rfid_read
+    global CT1_positioning_completed
     # crossing conveyor entrance
     ct1_plus.value = True
     stop_ct1 = True                 # BLOCKS THE RS1_Out !!!!
@@ -46,10 +50,12 @@ def ct1_handler():
         ct1_plus.value = False
         rc_input.value = False
 
+        
         entrance_rfid_read = False
         CT1_positioning_completed = True
 
 def ct1_ct1a_transit():
+    global CT1_positioning_completed
     if cs_1.value == True and CT1_positioning_completed == True:
         ct1_left.value = True
         ct1a_right.value = True
@@ -57,6 +63,14 @@ def ct1_ct1a_transit():
         ct1_left.value = False
         rc_a1.value = True
         CT1_positioning_completed = False
+
+def ct1a_crane_transit():
+        if rs1a_out.value == False and cs_1a.value == False:
+            print('duh')
+            ct1a_right.value = False
+            rcc_a2.value = True
+            rc_a3.value = True
+
 
 
 def loop():
@@ -72,28 +86,18 @@ def loop():
     ## start conveyor after fresh spawn
     if cargo_spawned_recently > 0:
         welcome()
-        
-
 
     ## Entrance scanner routine
     if entrance_rfid_read == True:
         ct1_handler()
     
-    
+    ct1_ct1a_transit()
+
+    ct1a_crane_transit()
 
 
-    if rs1a_out.value == False and cs_1a.value == False:
-        print('duh')
-        ct1a_right.value = False
-        rcc_a2.value = True
-        rc_a3.value = True
 
 
-    
-
-    
-
-    
 
 
 
