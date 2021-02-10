@@ -21,13 +21,11 @@ def loop():
         rc_input.value = True
 
     ## arm scanner after fresh cargo spawn
-    if cargo_spawned_recently > 0:
-        rfid_command.value = 1
-        rfid_iec.value = 'true'
+    #if cargo_spawned_recently > 0:
+    
 
     ##   RFID read entrance
-    rfid_data = rfid_iread.value
-    rfid_error = rfid_stat.value
+    
 
     if (rfid_error == 0):
         print(rfid_data)
@@ -45,7 +43,22 @@ def loop():
         cargo_spawned_recently -= 1
         rc_input.value = False
 
+        rfid_command.value = 1
+        rfid_iec.value = 'true'
+        
+        rfid_data = rfid_iread.value
+        rfid_error = rfid_stat.value
 
+        if (rfid_error == 0):
+            print(rfid_data)
+            #cargo_dict[rfid_data]          ## probably Cargo class needed
+        elif (rfid_error == 1):
+            print("Error No Tag")
+        elif (rfid_error == 2):
+            print("Error Too Many Tags")
+        else:
+            print('Another Error')
+        rfid_iec.value = 'true'
 
     
 

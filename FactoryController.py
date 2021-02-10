@@ -50,7 +50,7 @@ class FIO_Controller:
         self.tag_table = []
 
         self.run = self.attach_tag("FACTORY I/O (Run)")
-        self.check_simstat()
+        #self.check_simstat()
 
     # creates new tag object
     def attach_tag(self, tag_name):
