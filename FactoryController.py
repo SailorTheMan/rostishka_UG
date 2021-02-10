@@ -18,17 +18,13 @@ import time
 
 '''
 class Tag:
-    #self.name
-    #self.type
-    #self.address
-    #self.last_value
 
     def __init__(self, address, name):
         self.name = name
         self.address = address
 
     
-    def get_value(self):
+    def get_value(self):                            # dunno why but brakes encoding otherwise
         self.last_value = requests.get(self.address+'/api/tags?name='+self.name).json()[0]['value']
         return(self.last_value)
 
@@ -37,13 +33,13 @@ class Tag:
             value = "false"
         if value == True:
             value = "true"
-
+        self.last_value = value
         payload = [
         {
             "name": self.name,
             "value": value
         },        ]
-        print(payload)
+        #print(payload)
         requests.put(self.address+'/api/tag/values/by-name', json=payload)
 
 
@@ -54,6 +50,7 @@ class FIO_Controller:
         self.tag_table = []
 
         self.run = self.attach_tag("FACTORY I/O (Run)")
+        self.check_simstat()
 
     # creates new tag object
     def attach_tag(self, tag_name):
@@ -67,12 +64,19 @@ class FIO_Controller:
     
     def fetch_tags(self):
         for tg in self.tag_table:
-            print(tg.get_value())
+            tg.get_value()
 
     def sim_start(self):
         self.run.set_value("true")
     
     def sim_pause(self):
         pass
+
+    def check_simstat(self):
+        if self.run.get_value() != 'true':
+            print('Controller: Start simulation!')
+            return 0
+        else:
+            return 1
 
 

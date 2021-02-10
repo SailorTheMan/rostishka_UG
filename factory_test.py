@@ -231,9 +231,8 @@ if __name__ == '__main__':
     controller.fetch_tags()
     ##
     print('Spawn box')
-
     spawn_stackable_box()
-    
+    print('Wait conveyor')
     wait_first_rs()
 
     '''
