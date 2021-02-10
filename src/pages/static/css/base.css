@@ -7,6 +7,9 @@ body{
 }
 
 /* NAVBAR */
+.navbar{
+  background-color: #F6FBFF;
+}
 .navbar .navbar-nav .nav-link{
   color:#050F27;
 }

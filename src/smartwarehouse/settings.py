@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'accounts',
     'pages',
 ]
 
@@ -59,7 +59,9 @@ ROOT_URLCONF = 'smartwarehouse.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [PurePath.joinpath(BASE_DIR, "templates")],
+        'DIRS': [PurePath.joinpath(BASE_DIR, "templates"),
+                PurePath.joinpath(BASE_DIR, "accounts/templates")
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -123,3 +125,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = 'pages/static/'
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'rostishka.team@gmail.com'
+EMAIL_HOST_PASSWORD = 'Rostishka1234'
+EMAIL_PORT = 587
+
+AUTHENTICATION_BACKENDS = ['accounts.auth_backend.EmailBackend']
