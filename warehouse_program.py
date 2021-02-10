@@ -14,8 +14,36 @@ def loop():
     controller.fetch_tags()
 
     ## check pending DB entries
-        # spawn new box
-        cargo_spawned = True
+
+    
+    ## start conveyor after fresh spawn
+    if cargo_spawned_recently > 0:
+        rc_input.set_value(True)
+
+    ## arm scanner after fresh cargo spawn
+    if cargo_spawned_recently > 0:
+        rfid_command.set_value(1)
+        rfid_iec.set_value('true')
+
+    ##   RFID read entrance
+    rfid_data = rfid_iread.value
+    rfid_error = rfid_stat.value
+
+    if (rfid_error == 0):
+        print(rfid_data)
+        #cargo_dict[rfid_data]          ## probably Cargo class needed
+    elif (rfid_error == 1):
+        print("Error No Tag")
+    elif (rfid_error == 2):
+        print("Error Too Many Tags")
+    else:
+        print('Another Error')
+    rfid_iec.set_value('true')
+
+    ## Entrance scanner routine
+    if rs1_in.value == False:
+        rc_input.set_value(False)
+
 
     
 
@@ -31,15 +59,34 @@ if __name__ == '__main__':
     rs1_in = controller.attach_tag('RS 1 In')
     rs1_out = controller.attach_tag('RS 1A Out')
     al_a = controller.attach_tag('At Load A')
-    rfid_ic = controller.attach_tag("RFID In Command")
+    ## RFID ON ENTRANCE
+    rfid_command = controller.attach_tag("RFID In Command")
     rfid_iec = controller.attach_tag("RFID In Execute Command")
+    rfid_iread = controller.attach_tag("RFID In Read Data")
+    rfid_stat = controller.attach_tag("RFID In Status")
+    
+    
    
     
     
     # controller.sim_start()     doesnt work as expected
 
     ## 'global' variables
-    cargo_spawned = False
+    cargo_spawned_recently = 0
 
-    loop()
+    cargo_dict = {}
+
+    ## end global
+
+    em1_part.set_value(8192)
+    em1_emit.set_value("true")
+
+    time.sleep(1)
+
+    em1_part.set_value(8192)
+    em1_emit.set_value("false")
+    cargo_spawned_recently += 1
+
+    while(True):
+        loop()
     
