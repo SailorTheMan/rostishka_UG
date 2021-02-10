@@ -227,7 +227,7 @@ if __name__ == '__main__':
     al_a = controller.attach_tag('At Load A')
     
 
-    controller.sim_start()
+    # controller.sim_start()     doesnt work as expected
     controller.fetch_tags()
     ##
     print('Spawn box')

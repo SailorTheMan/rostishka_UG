@@ -44,7 +44,7 @@ class Tag:
             "value": value
         },        ]
         print(payload)
-        requests.put(self.address+'/api/tags?name='+self.name, json=payload)
+        requests.put(self.address+'/api/tag/values/by-name', json=payload)
 
 
 class FIO_Controller:
@@ -62,12 +62,12 @@ class FIO_Controller:
         return temp_tag
         
     ### WRITES BY-NAME
-    def batch_write(self, payload)
+    def batch_write(self, payload):
         requests.put(self.address+'/api//tag/values/by-name', json=payload)
     
     def fetch_tags(self):
         for tg in self.tag_table:
-            tg.get_value()
+            print(tg.get_value())
 
     def sim_start(self):
         self.run.set_value("true")
