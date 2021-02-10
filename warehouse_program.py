@@ -71,6 +71,15 @@ def loop():
         ct1a_right.value = True
     if cs_1a.value == True:
         ct1_left.value = False
+        rc_a1.value = True
+        CT1_positioning_completed = False
+    if rs1a_out.value == False and cs_1a.value == False:
+        print('duh')
+        ct1a_right.value = False
+        rcc_a2.value = True
+        rc_a3.value = True
+
+
     
 
     
@@ -87,7 +96,7 @@ if __name__ == '__main__':
     em1_emit = controller.attach_tag('Emitter 1 (Emit)')
     rc_input = controller.attach_tag('RC (4m) 1.1')
     rs1_in = controller.attach_tag('RS 1 In')
-    rs1_out = controller.attach_tag('RS 1A Out')
+    
     al_a = controller.attach_tag('At Load A')
     ## RFID ON ENTRANCE
     rfid_command = controller.attach_tag("RFID In Command")
@@ -102,8 +111,13 @@ if __name__ == '__main__':
     ## crossing conveyor next to entrance one
     ct1a_right = controller.attach_tag("CT 1A Right")
     cs_1a = controller.attach_tag("CS 1A")
-    #stop_ct2 = controller.attach_tag("StopR 1 Out")
     
+    rs1a_out = controller.attach_tag('RS 1A Out')
+    ## Conveyors curve 1A - Crane 1
+    rc_a1 = controller.attach_tag('RC A1')
+    rcc_a2 = controller.attach_tag('Curved RC A2')
+    rc_a3 = controller.attach_tag('RC A3')
+
     
     # controller.sim_start()     doesnt work as expected
 
