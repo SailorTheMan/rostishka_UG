@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+import asyncio
 
 '''
 {
@@ -103,3 +104,22 @@ class FIO_Controller:
             return 1
 
 
+'''class Machine:
+
+    def __init__(self, tag: Tag, ):
+        self.actuator = tag'''
+
+class Conveyor():
+    # busy
+    # actuator
+    # laser
+    # (rfid)
+    # 
+    def __init__(self, conv_tag: Tag, end_laser: Tag, rfid_reader=())
+        self.actuator = conv_tag
+        self.laser = end_laser
+        # rfid stuff
+    async def move(self):
+        self.actuator.set_value(True)
+        while( self.laser.get_value() == True ): sleep(0.05)
+        self.actuator.set_value(False)
