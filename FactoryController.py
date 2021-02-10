@@ -2,6 +2,7 @@ import requests
 import json
 import time
 import asyncio
+from time import sleep
 
 '''
 {
@@ -115,11 +116,44 @@ class Conveyor():
     # laser
     # (rfid)
     # 
-    def __init__(self, conv_tag: Tag, end_laser: Tag, rfid_reader=())
+    def __init__(self, conv_tag: Tag, end_laser: Tag, rfid_reader=()):
         self.actuator = conv_tag
         self.laser = end_laser
+        if rfid_reader != ():
+            self.rfid_command, self.rfid_exec, self.rfid_iread, self.rfid_stat = rfid_reader
         # rfid stuff
+
     async def move(self):
-        self.actuator.set_value(True)
-        while( self.laser.get_value() == True ): sleep(0.05)
+        self.busy = True
+        while( self.laser.get_value() == True ): 
+            await asyncio.sleep(0.05)
+            if self.actuator.value != True:
+                self.actuator.set_value(True)
         self.actuator.set_value(False)
+        return('1')
+    
+    async def transit_next(self):
+        while( self.laser.get_value() == False ): 
+            await asyncio.sleep(0.05)
+            if self.actuator.value != True:
+                self.actuator.set_value(True)
+        self.actuator.set_value(False)
+        self.busy = False
+
+    def read_rfid(self):
+        self.rfid_command.set_value(1)
+        self.rfid_exec.set_value('true')
+        rfid_data = self.rfid_iread.get_value()
+        rfid_error = self.rfid_stat.get_value()
+
+        if (rfid_error == 0):
+            print(rfid_data)
+        elif (rfid_error == 1):
+            print("Error No Tag")
+        elif (rfid_error == 2):
+            print("Error Too Many Tags")
+        else:
+            print('Another Error')
+        self.rfid_exec.set_value('false')
+
+        return(rfid_data)

@@ -8,33 +8,7 @@ import asyncio
 import FactoryController as fio
 
 SIM_ADDRESS = 'http://192.168.220.129:7410'    #my VM address
-
-async def welcome():
-    global entrance_rfid_read
-    print('one')
-    rc_input.value = True
-
-    if rs1_in.value == False:
-        # Stop conveyor
-        rc_input.value = False
-        # RFID read on entrance 
-        rfid_command.value = 1
-        rfid_iec.value = 'true'
-        
-        rfid_data = rfid_iread.value
-        rfid_error = rfid_stat.value
-
-        if (rfid_error == 0):
-            print(rfid_data)
-            entrance_rfid_read = True
-            #cargo_dict[rfid_data]          ## probably Cargo class needed
-        elif (rfid_error == 1):
-            print("Error No Tag")
-        elif (rfid_error == 2):
-            print("Error Too Many Tags")
-        else:
-            print('Another Error')
-        rfid_iec.value = 'true'
+    
 
 async def ct1_handler():
     global entrance_rfid_read
@@ -45,13 +19,13 @@ async def ct1_handler():
     ct1_plus.value = True
     stop_ct1 = True                 # BLOCKS THE RS1_Out !!!!
     if rs1_in.value == False:  # conveyot keeps on until line is clear
-        rc_input.value = True
+        pass#rc_input.value = True
 
     # crossing conveyor change direction condition
     if cs_1.value == True and rs1_in.value == True:
         #print('stop CC')
         ct1_plus.value = False
-        rc_input.value = False
+        #rc_input.value = False
 
         
         entrance_rfid_read = False
@@ -70,7 +44,7 @@ async def ct1_ct1a_transit():
         CT1_positioning_completed = False
 
 async def ct1a_crane_transit():
-        print('four')
+        #print('four')
         if rs1a_out.value == False and cs_1a.value == False:
             
             ct1a_right.value = False
@@ -91,9 +65,14 @@ async def loop():
 
     CT1_CT1A_transit_process = True
     
+    asyncio.gather(rc10.move(), rc1.move())
+    
+
     ## start conveyor after fresh spawn
     if cargo_spawned_recently > 0:
-        await welcome()
+
+        
+        data = rc1.read_rfid()
 
     ## Entrance scanner routine
     if entrance_rfid_read == True:
@@ -110,10 +89,18 @@ async def loop():
 
 
 
+### WOW 
+async def wtf():
+    await asyncio.gather(RC10.move(), RC1.move(), RCa1.move(), RCCa2.move(), RCa3.move(), lRCa4.move())
+
+
+
+
+
 
 if __name__ == '__main__':
     controller = fio.FIO_Controller(SIM_ADDRESS)
-    ##  Tag declaration
+    #####       Tag declaration      #####
     print('Tag declaration')
     em1_part = controller.attach_tag('Emitter 1 (Part)')
     em1_emit = controller.attach_tag('Emitter 1 (Emit)')
@@ -125,8 +112,7 @@ if __name__ == '__main__':
     rfid_iec = controller.attach_tag("RFID In Execute Command")
     rfid_iread = controller.attach_tag("RFID In Read Data")
     rfid_stat = controller.attach_tag("RFID In Status")
-    ##
-    rc1 = fio.Conveyor(rc_input, rs1_in, (rfid_command, rfid_iec, rfid_iread, rfid_stat))
+
     ## crossing conveyor entrance
     ct1_plus = controller.attach_tag("CT 1 (+)", tag_id='17862cd4-a781-4ee8-8f5b-12543abc0c12')
     ct1_left = controller.attach_tag("CT 1 Left")
@@ -139,15 +125,28 @@ if __name__ == '__main__':
     rs1a_out = controller.attach_tag('RS 1A Out')
     ## Conveyors curve 1A - Crane 1
     rc_a1 = controller.attach_tag('RC A1')
+    
+
     rcc_a2 = controller.attach_tag('Curved RC A2')
     rc_a3 = controller.attach_tag('RC A3')
     ## First crane arrivals
     l_rc_a4 = controller.attach_tag('Load RC A4')
     al_a = controller.attach_tag('At Load A')
+    ## test conveyor
+    rc_test = controller.attach_tag('RC A10')
+    rs1a_in = controller.attach_tag('RS 1A In')
 
-    
+    ## CONVEYOR class objects 
+    RC1 = fio.Conveyor(rc_input, rs1_in, (rfid_command, rfid_iec, rfid_iread, rfid_stat))
+    RC10 = fio.Conveyor(rc_test, rs1a_in)
+    RCa1 = fio.Conveyor(rc_a1, al_a)
+    RCCa2 = fio.Conveyor(rcc_a2, al_a)
+    RCa3 = fio.Conveyor(rc_a3, al_a)
+    lRCa4 = fio.Conveyor(l_rc_a4, al_a)
+    #####   END DECLARATION   #####
+
     # controller.sim_start()     doesnt work as expected
-
+    controller.fetch_tags()
     ## 'global' variables
     cargo_spawned_recently = 0
     CT1_positioning_completed = False
@@ -166,9 +165,15 @@ if __name__ == '__main__':
     em1_emit.set_value("false")
     cargo_spawned_recently += 1
 
+    #loop = asyncio.get_event_loop()  
+    #asyncio.ensure_future(rc10.move())
+    #asyncio.ensure_future(rc1.move())
 
-    while(True):
-        
-        asyncio.run(loop())
+
+
+    #while(True):
+    asyncio.run(wtf() ) 
+    #asyncio.run(loop())
+        #pass
         
     
