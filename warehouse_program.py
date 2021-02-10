@@ -12,18 +12,18 @@ SIM_ADDRESS = 'http://192.168.220.129:7410'    #my VM address
 
 def loop():
     controller.fetch_tags()
-
+    global cargo_spawned_recently
     ## check pending DB entries
 
     
     ## start conveyor after fresh spawn
     if cargo_spawned_recently > 0:
-        rc_input.set_value(True)
+        rc_input.value = True
 
     ## arm scanner after fresh cargo spawn
     if cargo_spawned_recently > 0:
-        rfid_command.set_value(1)
-        rfid_iec.set_value('true')
+        rfid_command.value = 1
+        rfid_iec.value = 'true'
 
     ##   RFID read entrance
     rfid_data = rfid_iread.value
@@ -38,11 +38,18 @@ def loop():
         print("Error Too Many Tags")
     else:
         print('Another Error')
-    rfid_iec.set_value('true')
+    rfid_iec.value = 'true'
 
     ## Entrance scanner routine
     if rs1_in.value == False:
-        rc_input.set_value(False)
+        cargo_spawned_recently -= 1
+        rc_input.value = False
+
+
+
+    
+
+    controller.push_tags()
 
 
     
@@ -80,9 +87,7 @@ if __name__ == '__main__':
 
     em1_part.set_value(8192)
     em1_emit.set_value("true")
-
     time.sleep(1)
-
     em1_part.set_value(8192)
     em1_emit.set_value("false")
     cargo_spawned_recently += 1

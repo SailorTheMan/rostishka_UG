@@ -66,6 +66,10 @@ class FIO_Controller:
         for tg in self.tag_table:
             tg.get_value()
 
+    def push_tags(self):
+        for tg in self.tag_table:
+            tg.set_value(tg.value)        
+
     def sim_start(self):
         self.run.set_value("true")
     
