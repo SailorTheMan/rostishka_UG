@@ -25,15 +25,15 @@ class Tag:
 
     
     def get_value(self):                            # dunno why but brakes encoding otherwise
-        self.last_value = requests.get(self.address+'/api/tags?name='+self.name).json()[0]['value']
-        return(self.last_value)
+        self.value = requests.get(self.address+'/api/tags?name='+self.name).json()[0]['value']
+        return(self.value)
 
     def set_value(self, value):
         if value == False:
             value = "false"
         if value == True:
             value = "true"
-        self.last_value = value
+        self.value = value
         payload = [
         {
             "name": self.name,
