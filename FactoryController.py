@@ -4,7 +4,9 @@ import time
 import asyncio
 from time import sleep
 
-'''
+ASYNC_SLEEP_TIME = 0.05
+
+'''         JSON EXAMPLE
 {
     "name": "Reset light",
     "id": "55a717c5-0bfc-4398-a3b0-f9855cad38e9",
@@ -126,7 +128,7 @@ class Conveyor():
     async def move(self):
         self.busy = True
         while( self.laser.get_value() == True ): 
-            await asyncio.sleep(0.05)
+            await asyncio.sleep(ASYNC_SLEEP_TIME)
             if self.actuator.value != True:
                 self.actuator.set_value(True)
         self.actuator.set_value(False)
@@ -134,7 +136,7 @@ class Conveyor():
     
     async def transit_next(self):
         while( self.laser.get_value() == False ): 
-            await asyncio.sleep(0.05)
+            await asyncio.sleep(ASYNC_SLEEP_TIME)
             if self.actuator.value != True:
                 self.actuator.set_value(True)
         self.actuator.set_value(False)
@@ -157,3 +159,31 @@ class Conveyor():
         self.rfid_exec.set_value('false')
 
         return(rfid_data)
+
+class Crossing_conveyor():
+
+    def __init__(self, forw_tag, back_tag, left_tag, right_tag, capacity, laser_out, stop_tag = None):
+        self.forward = forw_tag
+        self.back = back_tag
+        self.left = left_tag
+        self.right = right_tag
+        self.capacity = capacity
+        self.laser = laser_out
+        self.stop_tag = stop_tag        # barrier 
+
+        self.directions = {'forward': self.forward, 'back': self.back, 'left': self.left, 'right': self.right }
+    
+    async def accept_to(self, direction):
+        self.stop_tag.set_value(True)
+        self.directions[direction].set_value(True)
+        while( self.capacity.get_value() == False ): 
+            if self.directions[direction].value != True:
+                self.directions[direction].set_value(True)
+            await asyncio.sleep(ASYNC_SLEEP_TIME)
+        await asyncio.sleep(0.2)            # a little delay for better positioning
+        self.directions[direction].set_value(False)
+        return(1)
+    
+    async def move_to(self, direction):      ## TODO multidirectional move
+        self.left
+        pass
