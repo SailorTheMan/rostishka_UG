@@ -27,16 +27,7 @@ def loop():
     ##   RFID read entrance
     
 
-    if (rfid_error == 0):
-        print(rfid_data)
-        #cargo_dict[rfid_data]          ## probably Cargo class needed
-    elif (rfid_error == 1):
-        print("Error No Tag")
-    elif (rfid_error == 2):
-        print("Error Too Many Tags")
-    else:
-        print('Another Error')
-    rfid_iec.value = 'true'
+
 
     ## Entrance scanner routine
     if rs1_in.value == False:
@@ -63,9 +54,6 @@ def loop():
     
 
     controller.push_tags()
-
-
-    
 
 
 
