@@ -8,27 +8,10 @@ import FactoryController as fio
 
 SIM_ADDRESS = 'http://192.168.220.129:7410'    #my VM address
 
+def welcome():
+    rc_input.value = True
 
-
-def loop():
-    global cargo_spawned_recently
-    global entrance_rfid_read
-    global CT1_positioning_completed
-    global CT1A_positioning_completed
-    global CT1_CT1A_transit_process
-    ## check pending DB entries
-
-    CT1_CT1A_transit_process = True
-    
-    ## start conveyor after fresh spawn
-    if cargo_spawned_recently > 0:
-        rc_input.value = True
-
-
-    ## Entrance scanner routine
-    rfid_data = -1
-    if rs1_in.value == False and entrance_rfid_read == False:
-        cargo_spawned_recently -= 1
+    if rs1_in.value == False:
         # Stop conveyor
         rc_input.value = False
         # RFID read on entrance 
@@ -49,23 +32,24 @@ def loop():
         else:
             print('Another Error')
         rfid_iec.value = 'true'
-    
+
+def ct1_handler():
     # crossing conveyor entrance
-    if entrance_rfid_read == True:
-        ct1_plus.value = True
-        stop_ct1 = True                 # BLOCKS THE RS1_Out !!!!
-        if rs1_in.value == False:  # conveyot keeps on until line is clear
-            rc_input.value = True
-        
+    ct1_plus.value = True
+    stop_ct1 = True                 # BLOCKS THE RS1_Out !!!!
+    if rs1_in.value == False:  # conveyot keeps on until line is clear
+        rc_input.value = True
 
     # crossing conveyor change direction condition
     if cs_1.value == True and rs1_in.value == True:
         #print('stop CC')
         ct1_plus.value = False
         rc_input.value = False
+
         entrance_rfid_read = False
         CT1_positioning_completed = True
 
+def ct1_ct1a_transit():
     if cs_1.value == True and CT1_positioning_completed == True:
         ct1_left.value = True
         ct1a_right.value = True
@@ -73,6 +57,31 @@ def loop():
         ct1_left.value = False
         rc_a1.value = True
         CT1_positioning_completed = False
+
+
+def loop():
+    global cargo_spawned_recently
+    global entrance_rfid_read
+    global CT1_positioning_completed
+    global CT1A_positioning_completed
+    global CT1_CT1A_transit_process
+    ## check pending DB entries
+
+    CT1_CT1A_transit_process = True
+    
+    ## start conveyor after fresh spawn
+    if cargo_spawned_recently > 0:
+        welcome()
+        
+
+
+    ## Entrance scanner routine
+    if entrance_rfid_read == True:
+        ct1_handler()
+    
+    
+
+
     if rs1a_out.value == False and cs_1a.value == False:
         print('duh')
         ct1a_right.value = False
@@ -97,7 +106,6 @@ if __name__ == '__main__':
     rc_input = controller.attach_tag('RC (4m) 1.1')
     rs1_in = controller.attach_tag('RS 1 In')
     
-    al_a = controller.attach_tag('At Load A')
     ## RFID ON ENTRANCE
     rfid_command = controller.attach_tag("RFID In Command")
     rfid_iec = controller.attach_tag("RFID In Execute Command")
@@ -117,6 +125,9 @@ if __name__ == '__main__':
     rc_a1 = controller.attach_tag('RC A1')
     rcc_a2 = controller.attach_tag('Curved RC A2')
     rc_a3 = controller.attach_tag('RC A3')
+    ## First crane arrivals
+    l_rc_a4 = controller.attach_tag('Load RC A4')
+    al_a = controller.attach_tag('At Load A')
 
     
     # controller.sim_start()     doesnt work as expected
