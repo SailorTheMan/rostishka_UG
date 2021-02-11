@@ -37,8 +37,9 @@ class Tag:
             self.value = requests.get(query).json()['value']
         else:
             query = self.address+'/api/tags?name='+self.name
+            print(query)
             self.value = requests.get(query).json()[0]['value']
-        #print(query)
+        
         
         return(self.value)
 
