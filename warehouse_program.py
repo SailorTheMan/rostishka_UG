@@ -344,8 +344,6 @@ if __name__ == '__main__':
         print("Closing Loop")
         loop.close()'''
     #asyncio.run( task_control() ) # _forever
-    if False:
-        async_loop.stop()
 
     #asyncio.run(loop())
         #pass
