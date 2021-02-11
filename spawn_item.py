@@ -39,13 +39,14 @@ def find_panding_items(conn):
             if (not(row[8])):
                 print(row)
                 return row
-        return None
+    return None
 
 
 def get_RFID():
     # делаю прямыми сетами и гетами потому что тут нужно сразу получить реакцию
     rfid_command.set_value('1')
     rfid_iec.set_value(True)
+    time.sleep(0.1)
     stat = rfid_stat.get_value()
     print(stat)
     rfid_iec.set_value(False)
@@ -57,23 +58,29 @@ def get_RFID():
 
 
 def spawn_item(item):
+    # TODO добавить условие ожидание ошибки 1 (ожидать пока коробка уедет из зоны действия рфид датчика)
     global LAST_RFID
     global WAIT_ITEM_RFID
     em1_emit.value = 'false'
     # conn to db
     conn = sqlite3.connect('sim_data.sqlite')
     cursor = conn.cursor()
-    # TODO spawn item in sim, добавть ожидание рфид датчика и добавление рфид метки 
-    if (not(WAIT_ITEM_RFID)):
+    
+    RFID_value = get_RFID()
+    if LAST_RFID == RFID_value:
+        RFID_value = None
+
+    if (not(WAIT_ITEM_RFID) and rfid_stat.value == 1):
         em1_part.value = 8192
         em1_emit.value = "true"
         WAIT_ITEM_RFID = True
         # TODO возможно тут надо как то по разумистки включать конвейер но пока так
         rc_input.value = 'true'
+    
+    
 
-    RFID_value = get_RFID()
-    if LAST_RFID == RFID_value:
-        RFID_value = None
+
+    
 
     if RFID_value is not None:
         cursor.execute("UPDATE id_factory SET in_sim=1 WHERE ID=?;", (item[2], ))
@@ -81,9 +88,11 @@ def spawn_item(item):
         cursor.execute("UPDATE id_factory SET RFID_ID=? WHERE ID=?;", (RFID_value,item[2], ))
         conn.commit()
         WAIT_ITEM_RFID = False
-        rc_input.value = 'false'
+        # rc_input.value = 'false'
         print(f'{item[2]} in sim, in_sim: {item[7]}')
         LAST_RFID = RFID_value
+
+    conn.close()
     
     
     
@@ -96,9 +105,7 @@ def loop():
     # conn to db
     conn = sqlite3.connect('sim_data.sqlite')
     cursor = conn.cursor()
-    # debag 
-    cursor.execute("UPDATE id_factory SET in_sim=0")
-    conn.commit()
+
     ## check pending DB entries
     item = find_panding_items(conn)
     if (item is not None):
@@ -120,7 +127,7 @@ def loop():
     ## Entrance scanner routine
     
     
-
+    conn.close()
     controller.push_tags()
 
 
