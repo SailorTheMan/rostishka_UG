@@ -8,6 +8,8 @@ import FactoryController as fio
 
 SIM_ADDRESS = 'http://loopback:7410'    #my VM address
 START_TIME = time.time()
+WAIT_ITEM_RFID = False
+LAST_RFID = None
 
 def select_item(conn, priority):
     cur = conn.cursor()
@@ -32,27 +34,71 @@ def find_panding_items(conn):
     for row in conn.execute('SELECT * FROM id_factory ORDER BY "Time in"'):
         cur_time = time.time() - START_TIME
         # if time to be in sim but not in sim
-        if (cur_time > time_to_sec(row[4]) - 24 and cur_time < time_to_sec(row[5])):
+        
+        if (cur_time > time_to_sec(row[4]) and cur_time < time_to_sec(row[5])):
             if (not(row[8])):
+                print(row)
                 return row
         return None
-                
+
+
+def get_RFID():
+    # делаю прямыми сетами и гетами потому что тут нужно сразу получить реакцию
+    rfid_command.set_value('1')
+    rfid_iec.set_value(True)
+    stat = rfid_stat.get_value()
+    print(stat)
+    rfid_iec.set_value(False)
+    if (stat == 0):
+        value = rfid_iread.get_value()
+        return value
+    else:
+        return None 
+
+
 def spawn_item(item):
+    global LAST_RFID
+    global WAIT_ITEM_RFID
+    em1_emit.value = 'false'
     # conn to db
     conn = sqlite3.connect('sim_data.sqlite')
     cursor = conn.cursor()
-    # TODO spawn item in sim
-    # TODO почему то не вписывается измениение в базу, утром погяляжу че 
-    cursor.execute("UPDATE id_factory SET in_sim=1 WHERE ID=?;", (item[2], ))
-    print(f'{item[2]} in sim, in_sim: {item[8]}')
+    # TODO spawn item in sim, добавть ожидание рфид датчика и добавление рфид метки 
+    if (not(WAIT_ITEM_RFID)):
+        em1_part.value = 8192
+        em1_emit.value = "true"
+        WAIT_ITEM_RFID = True
+        # TODO возможно тут надо как то по разумистки включать конвейер но пока так
+        rc_input.value = 'true'
+
+    RFID_value = get_RFID()
+    if LAST_RFID == RFID_value:
+        RFID_value = None
+
+    if RFID_value is not None:
+        cursor.execute("UPDATE id_factory SET in_sim=1 WHERE ID=?;", (item[2], ))
+        conn.commit()
+        cursor.execute("UPDATE id_factory SET RFID_ID=? WHERE ID=?;", (RFID_value,item[2], ))
+        conn.commit()
+        WAIT_ITEM_RFID = False
+        rc_input.value = 'false'
+        print(f'{item[2]} in sim, in_sim: {item[7]}')
+        LAST_RFID = RFID_value
+    
+    
+    
         
 
 def loop():
+    
     controller.fetch_tags()
     print(time.time() - START_TIME)
     # conn to db
     conn = sqlite3.connect('sim_data.sqlite')
     cursor = conn.cursor()
+    # debag 
+    cursor.execute("UPDATE id_factory SET in_sim=0")
+    conn.commit()
     ## check pending DB entries
     item = find_panding_items(conn)
     if (item is not None):
@@ -95,9 +141,12 @@ if __name__ == '__main__':
     rfid_iread = controller.attach_tag("RFID In Read Data")
     rfid_stat = controller.attach_tag("RFID In Status")
     
-    
-   
-    
+    # debag 
+    conn = sqlite3.connect('sim_data.sqlite')
+    cursor = conn.cursor()
+    cursor.execute("UPDATE id_factory SET in_sim=0")
+    conn.commit()
+    conn.close()
     
     # controller.sim_start()     doesnt work as expected
 
