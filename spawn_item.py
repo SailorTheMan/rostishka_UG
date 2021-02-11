@@ -6,7 +6,7 @@ import time, datetime
 
 import FactoryController as fio
 
-SIM_ADDRESS = 'http://loopback:7410'    #my VM address
+SIM_ADDRESS = 'http://192.168.220.129:7410'    #my VM address
 START_TIME = time.time()
 WAIT_ITEM_RFID = False
 LAST_RFID = None
@@ -29,7 +29,7 @@ def time_to_sec(cur_time):
     sec = datetime.timedelta(hours=sec.tm_hour, minutes=sec.tm_min, seconds=sec.tm_sec).seconds
     return sec-ten
 
-def find_panding_items(conn):
+def find_pending_items(conn):
     
     for row in conn.execute('SELECT * FROM id_factory ORDER BY "Time in"'):
         cur_time = time.time() - START_TIME
@@ -57,7 +57,7 @@ def get_RFID():
         return None 
 
 
-def spawn_item(item):
+def spawn__item(item):
     # TODO добавить условие ожидание ошибки 1 (ожидать пока коробка уедет из зоны действия рфид датчика)
     global LAST_RFID
     global WAIT_ITEM_RFID
@@ -76,10 +76,6 @@ def spawn_item(item):
         WAIT_ITEM_RFID = True
         # TODO возможно тут надо как то по разумистки включать конвейер но пока так
         rc_input.value = 'true'
-    
-    
-
-
     
 
     if RFID_value is not None:
@@ -107,24 +103,10 @@ def loop():
     cursor = conn.cursor()
 
     ## check pending DB entries
-    item = find_panding_items(conn)
+    item = find_pending_items(conn)
     if (item is not None):
-        spawn_item(item)
+        spawn__item(item)
         item = None
-    
-    ## start conveyor after fresh spawn
-    
-
-    ## arm scanner after fresh cargo spawn
-    #if cargo_spawned_recently > 0:
-    
-
-    ##   RFID read entrance
-    
-
-
-
-    ## Entrance scanner routine
     
     
     conn.close()
