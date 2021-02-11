@@ -36,7 +36,7 @@ class Tag:
             self.value = requests.get(query).json()['value']
         else:
             query = self.address+'/api/tags?name='+self.name
-            print(query)
+            #print(query)
             self.value = requests.get(query).json()[0]['value']
         
         
@@ -131,7 +131,7 @@ class Conveyor():
         # rfid stuff
 
     async def move(self):
-        self.busy = True
+        
         while( self.laser.get_value() == True ): 
             await asyncio.sleep(ASYNC_SLEEP_TIME)
             if self.actuator.value != True:
@@ -142,6 +142,7 @@ class Conveyor():
     async def accept(self):
         self.busy = True
         self.actuator.set_value(True)
+        await self.move()
 
     async def transit_next(self):
         while( self.laser.get_value() == False ): 
