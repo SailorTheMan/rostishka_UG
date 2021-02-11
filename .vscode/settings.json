@@ -1,4 +1,4 @@
 {
     "git.ignoreLimitWarning": true,
-    "python.pythonPath": "C:\\Users\\Matvey\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe"
+    "emmet.includeLanguages": {"django-html": "html"},
 }

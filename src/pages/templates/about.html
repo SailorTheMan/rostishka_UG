@@ -1,1 +1,93 @@
-<h1>ABOUT</h1>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container py-5">
+    <div class="header my-5 py-5 text-center">
+            <p>Мы открыты для сотрудничества</p>
+            <h3>Наши контакты</h3>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h4>Стать партнером</h4>
+            <form class="form" method="post">
+                {% csrf_token %}
+                <label for="basic-url" class="form-label">Как вас зовут</label>
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon2">
+                        <img src="{% static 'images/person.png' %}" alt="">
+                    </span>
+                {{ form.name }}
+                {% comment %} <input type="text" class="form-control" placeholder="Иванов Иван" aria-label="Recipient's username" aria-describedby="basic-addon2"> {% endcomment %}
+                </div>
+
+                <label for="basic-url" class="form-label">Ваша почта</label>
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon2">
+                        <img src="{% static 'images/mail.svg' %}" alt="">
+                    </span>
+                {{form.email}}
+                {% comment %} <input type="text" class="form-control" placeholder="ivanov@ivan.com" aria-label="Recipient's username" aria-describedby="basic-addon2"> {% endcomment %}
+                </div>
+                    
+                <label for="basic-url" class="form-label">Ваше сообщение</label>
+                <div class="input-group">
+                <span class="input-group-text">
+                    <img src="{% static 'images/text.svg' %}" alt="">
+                </span>
+                {{form.message}}
+                {% comment %} <textarea class="form-control" aria-label="With textarea" placeholder="Сообщение"></textarea> {% endcomment %}
+                </div>
+
+                <button class="btn btn-primary mt-5" type='submit'>Отправить сообщение</button>
+            </form>
+        </div>
+    
+        <div class="col ">
+            <div class="row card mb-3" style="max-width: 540px; background-color: transparent; border:0">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                    <img src="{% static 'images/contact.svg' %}" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Наши контакты</h5>
+                        <p class="card-text"><small class="text">Отдел продаж:</br>+7 (999) 999-99-99</small></p>
+                        <p class="card-text"><small class="text">Отдел по работе с подрядчиками:</br>+7 (999) 999-99-99</small></p>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row card mb-3" style="max-width: 540px; background-color: transparent; border:0">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                    <img src="{% static 'images/envelope.svg' %}" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Наши контакты</h5>
+                        <p class="card-text"><small class="text">Отдел продаж:</br>+7 (999) 999-99-99</small></p>
+                        <p class="card-text"><small class="text">Отдел по работе с подрядчиками:</br>+7 (999) 999-99-99</small></p>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row card mb-3" style="max-width: 540px; background-color: transparent; border:0">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                    <img src="{% static 'images/map.svg' %}" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Наши контакты</h5>
+                        <p class="card-text"><small class="text">Отдел продаж:</br>+7 (999) 999-99-99</small></p>
+                        <p class="card-text"><small class="text">Отдел по работе с подрядчиками:</br>+7 (999) 999-99-99</small></p>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
