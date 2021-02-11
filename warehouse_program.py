@@ -1,3 +1,5 @@
+#!/.venv/Scripts/python.exe
+
 import requests
 import json
 import sqlite3
@@ -7,95 +9,29 @@ import asyncio
 
 import FactoryController as fio
 
-SIM_ADDRESS = 'http://192.168.220.129:7410'    #my VM address
-    
-
-async def ct1_handler():
-    global entrance_rfid_read
-    global CT1_positioning_completed
-
-    #print('two')
-    # crossing conveyor entrance
-    ct1_plus.value = True
-    stop_ct1 = True                 # BLOCKS THE RS1_Out !!!!
-    if rs1_in.value == False:  # conveyot keeps on until line is clear
-        pass#rc_input.value = True
-
-    # crossing conveyor change direction condition
-    if cs_1.value == True and rs1_in.value == True:
-        #print('stop CC')
-        ct1_plus.value = False
-        #rc_input.value = False
-
-        
-        entrance_rfid_read = False
-        CT1_positioning_completed = True
-
-async def ct1_ct1a_transit():
-    global CT1_positioning_completed
-    #print('three')
-
-    if cs_1.value == True and CT1_positioning_completed == True:
-        ct1_left.value = True
-        ct1a_right.value = True
-    if cs_1a.value == True:
-        ct1_left.value = False
-        rc_a1.value = True
-        CT1_positioning_completed = False
-
-async def ct1a_crane_transit():
-        #print('four')
-        if rs1a_out.value == False and cs_1a.value == False:
-            
-            ct1a_right.value = False
-            rcc_a2.value = True
-            rc_a3.value = True
-
-
-
-async def loop():
-    controller.fetch_tags()         ### <- updates tags in the beginnig
-
-    global cargo_spawned_recently
-    global entrance_rfid_read
-    global CT1_positioning_completed
-    global CT1A_positioning_completed
-    global CT1_CT1A_transit_process
-    ## check pending DB entries
-
-    CT1_CT1A_transit_process = True
-    
-    asyncio.gather(rc10.move(), rc1.move())
-    
-
-    ## start conveyor after fresh spawn
-    if cargo_spawned_recently > 0:
-
-        
-        data = rc1.read_rfid()
-
-    ## Entrance scanner routine
-    if entrance_rfid_read == True:
-        await ct1_handler()
-    
-    await ct1_ct1a_transit()
-
-    await ct1a_crane_transit()
-
-    controller.push_tags()          ### <- updates tags in the end
+SIM_ADDRESS = 'http://192.168.220.129:7410'    #my local VM address
 
 
 
 
-
-
-### WOW 
-async def wtf():
+async def pallet1():
     #await asyncio.gather(RC10.move(), RC1.move(), RCa1.move(), RCCa2.move(), RCa3.move(), lRCa4.move())
     await RC1.move()
     await asyncio.gather(RC1.transit_next(), CT1.accept_to('forward'))
     await asyncio.gather(CT1.move_to('left'), CT1A.accept_to('right'))
+    await CT1A.move_to('right')
+    await Arc1.move()
 
+async def pallet2():
+    
+    await CT1A.move_to('right')
+    await Arc1.move()
+
+### WOW 
+async def task_controll():
+    await asyncio.gather(pallet1(), pallet2())
+    #await pallet1()
+    #await pallet2()
 
 
 
@@ -150,6 +86,9 @@ if __name__ == '__main__':
     RCa3 =  fio.Conveyor(rc_a3, al_a)
     lRCa4 = fio.Conveyor(l_rc_a4, al_a) # arc end
 
+    ## CONVEYOR SERIES
+    Arc1 = fio.Conv_Series(al_a, rc_a1, rcc_a2, rc_a3, l_rc_a4)
+
     ##      CROSSING CONVEYORS
     CT1 =   fio.Crossing_conveyor(ct1_plus, ct1_min, ct1_left, ct1_right, cs_1, rs1_out, stop_ct1, wait_time=2.1)
     CT1A =  fio.Crossing_conveyor(ct1a_plus, ct1a_min, ct1a_left, ct1a_right, cs_1a, rs1a_out, stop_ct1a, wait_time=3.5)
@@ -173,7 +112,7 @@ if __name__ == '__main__':
 
 
     #while(True):
-    asyncio.run(wtf() ) 
+    asyncio.run( task_controll() ) 
     #asyncio.run(loop())
         #pass
         

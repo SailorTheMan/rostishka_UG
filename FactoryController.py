@@ -108,10 +108,6 @@ class FIO_Controller:
             return 1
 
 
-'''class Machine:
-
-    def __init__(self, tag: Tag, ):
-        self.actuator = tag'''
 
 class Conveyor():
     # busy
@@ -160,6 +156,23 @@ class Conveyor():
         self.rfid_exec.set_value('false')
 
         return(rfid_data)
+
+class Conv_Series(Conveyor):
+    def __init__(self, end_laser: Tag, *convs, rfid_reader=()):
+        super().__init__(convs[0], end_laser, rfid_reader)
+        self.conv_chain = convs
+
+    async def move(self):
+        self.busy = True
+        while( self.laser.get_value() == True ): 
+            await asyncio.sleep(ASYNC_SLEEP_TIME)
+            if self.conv_chain[0].value != True:
+                for conv in self.conv_chain:
+                    conv.set_value(True)
+        for conv in self.conv_chain:
+           conv.set_value(False)
+        return('1')
+
 
 class Crossing_conveyor():
 

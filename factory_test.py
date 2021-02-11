@@ -1,3 +1,4 @@
+#!/.venv/Scripts/python.exe
 import requests
 import json
 from time import sleep
@@ -249,7 +250,7 @@ def item_to_shelf(number):
     put_by_name("Forks Left A", 0)
     # ждем
     while(not((get_value("At Middle A")))): sleep(0.05)
-
+    
     put_by_name("Target Position A", 55)
     sleep(0.1)
     while(get_value("Moving Z A") and get_value("Moving X A")): sleep(0.05)
