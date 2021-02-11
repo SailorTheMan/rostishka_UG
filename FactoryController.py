@@ -20,7 +20,6 @@ DEFAULT_ACCEPT_TIME = 2.7
     "isForced": false,
     "forcedValue": false
 }
-
 '''
 class Tag:
 
@@ -108,7 +107,7 @@ class FIO_Controller:
 
     def check_simstat(self):
         if self.run.get_value() != 'true':
-            print('Controller: Start simulation!')
+            # print('Controller: Start simulation!')
             return 0
         else:
             return 1
