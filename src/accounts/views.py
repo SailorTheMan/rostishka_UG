@@ -1,20 +1,22 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from .forms import SignupForm, LoginForm, TwoFactorForm
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from .tokens import account_activation_token
-from django.contrib.auth.models import User
+from .models import User
 from django.core.mail import EmailMessage
-
+from . import timer
+import threading
 
 
 def signup(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
+        print(form.is_valid())
         if form.is_valid():
             user = form.save(commit=False)
             user.is_active = False
@@ -32,10 +34,15 @@ def signup(request):
                         mail_subject, message, to=[to_email]
             )
             email.send()
-            return HttpResponse('Please confirm your email address to complete the registration')
+            x = threading.Thread(target=timer.start_countdown, args=(User, user.pk, 0.5))
+            x.start()
+            return render(request, 'email_check.html', {'is_activated':False, 'is_link_invalid':False})
+        else:
+            form = SignupForm()
+            return render(request, 'signup.html', {'form': form, 'is_user_exist':True})
     else:
         form = SignupForm()
-    return render(request, 'signup.html', {'form': form})
+        return render(request, 'signup.html', {'form': form})
 
 def activate(request, uidb64, token):
     try:
@@ -58,9 +65,9 @@ def activate(request, uidb64, token):
                     mail_subject, message, to=[to_email]
         )
         email.send()
-        return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
+        return render(request, 'email_check.html', {'is_activated':True})
     else:
-        return HttpResponse('Activation link is invalid!')
+        return render(request, 'email_check.html', {'is_activated':False, 'is_link_invalid':True})
 
 def user_login(request):
     if request.method == 'POST':
@@ -70,19 +77,19 @@ def user_login(request):
             user = authenticate(username=cd['email'], password=cd['password'])
             if user is not None:
                 if user.is_active:
-                    
-                    uid = urlsafe_base64_encode(force_bytes(user.pk))
-                    token = account_activation_token.make_token(user)
-                    url = uid + '/' + token
-                    # login(request, user)
-                    return redirect(url)
+                    login(request, user)
+                    return redirect('home')
                 else:
                     return HttpResponse('Disabled account')
             else:
-                return HttpResponse('Invalid login')
+                return HttpResponse('Invalid login or password')
     else:
         form = LoginForm()
     return render(request, 'account/login.html', {'form': form})
+
+def user_logout(request):
+    logout(request)
+    return redirect('home')
 
 
 def two_factor_login(request, uidb64, token):

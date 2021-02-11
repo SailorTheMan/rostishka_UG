@@ -1,9 +1,20 @@
 body{
   background-color: #F6FBFF;
   color:#050F27;
-  font-family: Poppins;
+  font-family: "Poppins", sans-serif;
   font-style: normal;
   font-weight: normal;
+}
+
+.topNubex{
+  position: fixed;
+  right:45px;
+  bottom: 45px;
+  color:#fff;
+  text-decoration: none;
+  border-width: 2px;
+  background-color: #319CFF;
+  z-index: 999;
 }
 
 /* NAVBAR */
@@ -18,20 +29,23 @@ body{
   color:#319CFF;
 }
 
-.navbar .navbar-nav .nav-link:hover{
+.nav-link:hover{
   color:#319CFF;
 }
 
-.navbar .login-btn{
+.nav-link .login-btn{
   background-color: #319CFF;
-  width: 210px;
-  height: 50px;
   padding:10px;
+}
+
+.nav-link .login-btn:hover{
+  background-color: #319CFF;
 }
 
 .navbar .login-btn .fst-row{
   font-size: 14px;
   margin: 0;
+  color: #fff;
 }
 .navbar .login-btn .snd-row{
   font-size: 9px;
@@ -40,6 +54,14 @@ body{
 .navbar-nav{
   justify-content: space-between;
 }
+.nav-link .name{
+  text-decoration: underline;
+}
+
+.nav-link .logout{
+  text-decoration: underline;
+}
+
 
 /* HOME_ABOUT */
 
@@ -50,6 +72,15 @@ body{
 .about h3{
   color:#1158FF;
   font-size: 35px;
+}
+
+.about .first-form{
+  background-color: #fff !important;
+}
+
+.about .first-form .form-control{
+  border: none !important;
+  text-align: center  ;
 }
 
 /* HOW IT WORKS */

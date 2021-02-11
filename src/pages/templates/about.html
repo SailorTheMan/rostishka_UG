@@ -11,13 +11,15 @@
     <div class="row">
         <div class="col">
             <h4>Стать партнером</h4>
-            <div class="form">
+            <form class="form" method="post">
+                {% csrf_token %}
                 <label for="basic-url" class="form-label">Как вас зовут</label>
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="basic-addon2">
                         <img src="{% static 'images/person.png' %}" alt="">
                     </span>
-                <input type="text" class="form-control" placeholder="Иванов Иван" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                {{ form.name }}
+                {% comment %} <input type="text" class="form-control" placeholder="Иванов Иван" aria-label="Recipient's username" aria-describedby="basic-addon2"> {% endcomment %}
                 </div>
 
                 <label for="basic-url" class="form-label">Ваша почта</label>
@@ -25,7 +27,8 @@
                     <span class="input-group-text" id="basic-addon2">
                         <img src="{% static 'images/mail.svg' %}" alt="">
                     </span>
-                <input type="text" class="form-control" placeholder="ivanov@ivan.com" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                {{form.email}}
+                {% comment %} <input type="text" class="form-control" placeholder="ivanov@ivan.com" aria-label="Recipient's username" aria-describedby="basic-addon2"> {% endcomment %}
                 </div>
                     
                 <label for="basic-url" class="form-label">Ваше сообщение</label>
@@ -33,11 +36,12 @@
                 <span class="input-group-text">
                     <img src="{% static 'images/text.svg' %}" alt="">
                 </span>
-                <textarea class="form-control" aria-label="With textarea" placeholder="Сообщение"></textarea>
+                {{form.message}}
+                {% comment %} <textarea class="form-control" aria-label="With textarea" placeholder="Сообщение"></textarea> {% endcomment %}
                 </div>
 
-                <button class="btn btn-primary mt-5">Отправить сообщение</button>
-            </div>c
+                <button class="btn btn-primary mt-5" type='submit'>Отправить сообщение</button>
+            </form>
         </div>
     
         <div class="col ">

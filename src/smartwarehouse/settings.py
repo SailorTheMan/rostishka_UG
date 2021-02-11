@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    
     'accounts',
     'pages',
 ]
@@ -133,3 +135,4 @@ EMAIL_HOST_PASSWORD = 'Rostishka1234'
 EMAIL_PORT = 587
 
 AUTHENTICATION_BACKENDS = ['accounts.auth_backend.EmailBackend']
+AUTH_USER_MODEL = 'accounts.User'
