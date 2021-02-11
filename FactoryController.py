@@ -123,6 +123,9 @@ class Conveyor():
     def __init__(self, conv_tag: Tag, end_laser: Tag, rfid_reader=()):
         self.actuator = conv_tag
         self.laser = end_laser
+        self.busy = False
+        self.tasks = asyncio.Queue()        # queue for upcoming tasks
+
         if rfid_reader != ():
             self.rfid_command, self.rfid_exec, self.rfid_iread, self.rfid_stat = rfid_reader
         # rfid stuff

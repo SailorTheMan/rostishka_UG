@@ -11,6 +11,9 @@ import FactoryController as fio
 
 SIM_ADDRESS = 'http://192.168.220.129:7410'    #my local VM address
 
+
+
+
 async def pallet1():
     #await asyncio.gather(RC10.move(), RC1.move(), RCa1.move(), RCCa2.move(), RCa3.move(), lRCa4.move())
     await RC1.move()
@@ -166,7 +169,7 @@ if __name__ == '__main__':
     CT3B    = controller.attach_machine('CT3B', fio.Crossing_conveyor(ct3b_plus, ct3b_min, ct3b_left, ct3b_right, cs_3b, rs3b_out, wait_time=3.5))
     CT4     = controller.attach_machine('CT4', fio.Crossing_conveyor(ct4_plus, ct4_min, ct4_left, ct4_right, cs_4, rs4_out, wait_time=2.1))
     CT4B    = controller.attach_machine('CT4B', fio.Crossing_conveyor(ct4b_plus, ct4b_min, ct4b_left, ct4b_right, cs_4b, rs4b_out, wait_time=3.5))
-    
+
     #####   END DECLARATION   #####
 
     # controller.sim_start()     doesnt work as expected
