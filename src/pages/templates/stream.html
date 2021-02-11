@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <div class="stream">
+        {% if  is_admin%}
+            <div class="row text-center">
+                <div class="col ">  
+                    <iframe width="424" height="240" src="{{stream_url}}" 
+                    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+            <div class="row text-center">
+                <div class="col">
+                    <button class='btn btn-primary' onClick="window.location.reload();">Обновить</button>
+                </div>
+            </div>
+        {% else %}
+            <p class='text-center'>Данная страница доступна только для администраторов.</p>
+        {% endif %}
+        </div>
+    </div>
+{% endblock %} 
