@@ -36,17 +36,13 @@ class Tag:
             self.value = requests.get(query).json()['value']
         else:
             query = self.address+'/api/tags?name='+self.name
-            print(query)
+            # print(query)
             self.value = requests.get(query).json()[0]['value']
         
         
         return(self.value)
 
     def set_value(self, value):
-        if value == False:
-            value = "false"
-        if value == True:
-            value = "true"
         self.value = value
         
         #print(payload)
@@ -158,7 +154,8 @@ class Conveyor():
         rfid_error = self.rfid_stat.get_value()
 
         if (rfid_error == 0):
-            print(rfid_data)
+            # print(rfid_data)
+            None
         elif (rfid_error == 1):
             print("Error No Tag")
         elif (rfid_error == 2):
@@ -247,7 +244,16 @@ class Crane:
 
 
     async def to_shelf(self, number):
+        right = False
+        # number - 1-54 левая сторона 55-108 - правая сторона
+        if (number > 54): 
+            number = number % 54
+            right = True
+        # мозг устал простите:
+        if (number == 108): number = 54
         self.busy = True
+
+
         self.fork_left_a.set_value(True)
         while(not(self.at_left_a.get_value())): await asyncio.sleep(0.1)
 
@@ -259,19 +265,26 @@ class Crane:
         self.fork_left_a.set_value(False)
         while(not((self.at_mid_a.get_value()))): await asyncio.sleep(0.1)
 
-
+    
         self.targ_pos_a.set_value(number)
         await asyncio.sleep(0.1)
         while (self.mov_z_a.get_value() or self.mov_x_a.get_value()): await asyncio.sleep(0.1)
 
-        self.fork_left_a.set_value(True)
-        while(not(self.at_left_a.get_value())): await asyncio.sleep(0.1)
+        if (right):
+            self.fork_right_a.set_value(True)
+            while(not(self.at_right_a.get_value())): await asyncio.sleep(0.1)
+        else:
+            self.fork_left_a.set_value(True)
+            while(not(self.at_left_a.get_value())): await asyncio.sleep(0.1)
 
         self.lift_a.set_value(False)
         await asyncio.sleep(0.1)
         while(self.mov_z_a.get_value()): await asyncio.sleep(0.1)
-
-        self.fork_left_a.set_value(False)
+        
+        if(right):
+            self.fork_right_a.set_value(False)
+        else:
+            self.fork_left_a.set_value(False)
         while(not(self.at_mid_a.get_value())): await asyncio.sleep(0.1)
 
         self.targ_pos_a.set_value(55)
@@ -280,21 +293,34 @@ class Crane:
 
 
     async def from_shelf(self, number):
+        right = False
+        # number - 1-54 левая сторона 55-108 - правая сторона
+        if (number > 54): 
+            number = number % 54
+            right = True
+        # мозг устал простите:
+        if (number == 108): number = 54
         self.busy = True
+
         self.targ_pos_a.set_value(number)
         await asyncio.sleep(0.1)
         while (self.mov_z_a.get_value() or self.mov_x_a.get_value()): await asyncio.sleep(0.1)
 
-
-        self.fork_left_a.set_value(True)
-        while(not(self.at_left_a.get_value())): await asyncio.sleep(0.1)
+        if (right):
+            self.fork_right_a.set_value(True)
+            while(not(self.at_right_a.get_value())): await asyncio.sleep(0.1)
+        else:
+            self.fork_left_a.set_value(True)
+            while(not(self.at_left_a.get_value())): await asyncio.sleep(0.1)
     
         self.lift_a.set_value(True)
         await asyncio.sleep(0.1)
         while(not(self.mov_z_a.get_value())): await asyncio.sleep(0.1)
 
-    
-        self.fork_left_a.set_value(False)
+        if (right):
+            self.fork_right_a.set_value(False)
+        else:
+            self.fork_left_a.set_value(False)
         while(not((self.at_mid_a.get_value()))): await asyncio.sleep(0.1)
 
         self.targ_pos_a.set_value(55)
