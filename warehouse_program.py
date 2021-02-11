@@ -159,13 +159,14 @@ if __name__ == '__main__':
     Bridge3 = controller.attach_machine('Bridge3', fio.Conv_Series(rs3b_in, rcb8, rcb9))    # Between CT3 and CT4
 
     ##      CROSSING CONVEYORS
-    CT1     = fio.Crossing_conveyor(ct1_plus, ct1_min, ct1_left, ct1_right, cs_1, rs1_out, stop_ct1, wait_time=2.1)
-    CT1A    = fio.Crossing_conveyor(ct1a_plus, ct1a_min, ct1a_left, ct1a_right, cs_1a, rs1a_out, stop_ct1a, wait_time=3.5)
-    CT2     = fio.Crossing_conveyor(ct2_plus, ct2_min, ct2_left, ct2_right, cs_2, rs2_out, wait_time=3.5)
-    CT3     = fio.Crossing_conveyor(ct3_plus, ct3_min, ct3_left, ct3_right, cs_3, rs3_out, wait_time=2.5)
-    CT3B    = fio.Crossing_conveyor(ct3b_plus, ct3b_min, ct3b_left, ct3b_right, cs_3b, rs3b_out, wait_time=3.5)
-    CT4     = fio.Crossing_conveyor(ct4_plus, ct4_min, ct4_left, ct4_right, cs_4, rs4_out, wait_time=2.1)
-    CT4B    = fio.Crossing_conveyor(ct4b_plus, ct4b_min, ct4b_left, ct4b_right, cs_4b, rs4b_out, wait_time=3.5)
+    CT1     = controller.attach_machine('CT1', fio.Crossing_conveyor(ct1_plus, ct1_min, ct1_left, ct1_right, cs_1, rs1_out, stop_ct1, wait_time=2.1))
+    CT1A    = controller.attach_machine('CT1A', fio.Crossing_conveyor(ct1a_plus, ct1a_min, ct1a_left, ct1a_right, cs_1a, rs1a_out, stop_ct1a, wait_time=3.5))
+    CT2     = controller.attach_machine('CT2', fio.Crossing_conveyor(ct2_plus, ct2_min, ct2_left, ct2_right, cs_2, rs2_out, wait_time=3.5))
+    CT3     = controller.attach_machine('CT3', fio.Crossing_conveyor(ct3_plus, ct3_min, ct3_left, ct3_right, cs_3, rs3_out, wait_time=2.5))
+    CT3B    = controller.attach_machine('CT3B', fio.Crossing_conveyor(ct3b_plus, ct3b_min, ct3b_left, ct3b_right, cs_3b, rs3b_out, wait_time=3.5))
+    CT4     = controller.attach_machine('CT4', fio.Crossing_conveyor(ct4_plus, ct4_min, ct4_left, ct4_right, cs_4, rs4_out, wait_time=2.1))
+    CT4B    = controller.attach_machine('CT4B', fio.Crossing_conveyor(ct4b_plus, ct4b_min, ct4b_left, ct4b_right, cs_4b, rs4b_out, wait_time=3.5))
+    
     #####   END DECLARATION   #####
 
     # controller.sim_start()     doesnt work as expected
