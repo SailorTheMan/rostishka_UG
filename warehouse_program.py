@@ -25,17 +25,18 @@ async def pallet2():
     await Arc1.move()
 
 async def pallet3():
-    await CT2.move_to('forward')
+    await asyncio.gather(CT2.move_to('forward'), RC1_4.accept())
     await RC1_4.move()
     await asyncio.gather(RC1_4.transit_next(), CT3.accept_to('forward'))
     await asyncio.gather(CT3.move_to('left'), CT3B.accept_to('right'))
-    await CT3B.move_to('right')
+    await asyncio.gather(CT3B.move_to('right'), RCb1.accept())
     await RCb1.move()
 
-
+async def wtf():
+    await asyncio.gather(pallet2(), pallet3())
 ### WOW 
 async def task_controll():
-    await asyncio.gather(pallet1(), pallet2(), pallet3())
+    await asyncio.gather(pallet1(), wtf())
     #await pallet1()
     #await pallet2()
 
@@ -142,20 +143,20 @@ if __name__ == '__main__':
     rsb_in     = controller.attach_tag('RS B In')
 
     ##      CONVEYORS 
-    RC1 =   fio.Conveyor(rc_input, rs1_in, (rfid_command, rfid_iec, rfid_iread, rfid_stat))
-    RCa1 =  fio.Conveyor(rc_a1, al_a)
-    RCCa2 = fio.Conveyor(rcc_a2, al_a)  # arc start
-    RCa3 =  fio.Conveyor(rc_a3, al_a)
-    lRCa4 = fio.Conveyor(l_rc_a4, al_a) # arc end
-    RC1_4 = fio.Conveyor(rc_1_4, rs3_in)
-    RCb1  = fio.Conveyor(rc_b1, rsb_in)
+    RC1   = controller.attach_machine('RC1', fio.Conveyor(rc_input, rs1_in, (rfid_command, rfid_iec, rfid_iread, rfid_stat)))
+    RCa1  = controller.attach_machine('RCa1', fio.Conveyor(rc_a1, al_a))
+    RCCa2 = controller.attach_machine('RCCa2', fio.Conveyor(rcc_a2, al_a))  # arc start
+    RCa3  = controller.attach_machine('RCa3', fio.Conveyor(rc_a3, al_a))
+    lRCa4 = controller.attach_machine('lRCa4', fio.Conveyor(l_rc_a4, al_a) )# arc end
+    RC1_4 = controller.attach_machine('RC1_4', fio.Conveyor(rc_1_4, rs3_in))
+    RCb1  = controller.attach_machine('RCb1', fio.Conveyor(rc_b1, rsb_in))
 
 
     ## CONVEYOR SERIES
-    Arc1 = fio.Conv_Series(al_a, rc_a1, rcc_a2, rc_a3, l_rc_a4)
-    Bridge1 = fio.Conv_Series(rs2_in, rc_1_2, rc_1_3) # Between CT1 and CT2
-    Bridge2 = fio.Conv_Series(rs4_in, rc_1_5, rc_1_6) # Between CT3 and CT4
-    Bridge3 = fio.Conv_Series(rs3b_in, rcb8, rcb9) # Between CT3 and CT4
+    Arc1    = controller.attach_machine('Arc1', fio.Conv_Series(al_a, rc_a1, rcc_a2, rc_a3, l_rc_a4))
+    Bridge1 = controller.attach_machine('Bridge1', fio.Conv_Series(rs2_in, rc_1_2, rc_1_3)) # Between CT1 and CT2
+    Bridge2 = controller.attach_machine('Bridge2', fio.Conv_Series(rs4_in, rc_1_5, rc_1_6)) # Between CT3 and CT4
+    Bridge3 = controller.attach_machine('Bridge3', fio.Conv_Series(rs3b_in, rcb8, rcb9))    # Between CT3 and CT4
 
     ##      CROSSING CONVEYORS
     CT1     = fio.Crossing_conveyor(ct1_plus, ct1_min, ct1_left, ct1_right, cs_1, rs1_out, stop_ct1, wait_time=2.1)
@@ -163,7 +164,7 @@ if __name__ == '__main__':
     CT2     = fio.Crossing_conveyor(ct2_plus, ct2_min, ct2_left, ct2_right, cs_2, rs2_out, wait_time=3.5)
     CT3     = fio.Crossing_conveyor(ct3_plus, ct3_min, ct3_left, ct3_right, cs_3, rs3_out, wait_time=2.5)
     CT3B    = fio.Crossing_conveyor(ct3b_plus, ct3b_min, ct3b_left, ct3b_right, cs_3b, rs3b_out, wait_time=3.5)
-    CT4     = fio.Crossing_conveyor(ct4_plus, ct4_min, ct4_left, ct4_right, cs_4, rs4_out, wait_time=3.5)
+    CT4     = fio.Crossing_conveyor(ct4_plus, ct4_min, ct4_left, ct4_right, cs_4, rs4_out, wait_time=2.1)
     CT4B    = fio.Crossing_conveyor(ct4b_plus, ct4b_min, ct4b_left, ct4b_right, cs_4b, rs4b_out, wait_time=3.5)
     #####   END DECLARATION   #####
 

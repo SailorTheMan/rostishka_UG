@@ -73,7 +73,7 @@ class FIO_Controller:
     def __init__(self, address):
         self.address = address
         self.tag_table = []
-
+        self.machines = {}
         self.run = self.attach_tag("FACTORY I/O (Run)")
         #self.check_simstat()
 
@@ -82,10 +82,15 @@ class FIO_Controller:
         temp_tag = Tag(self.address, tag_name, tag_id)
         self.tag_table.append(temp_tag)
         return temp_tag
+    
+    def attach_machine(self, name, machine):
+        self.machines[name] = machine
+        return machine
+
         
     ### WRITES BY-NAME
     def batch_write(self, payload):
-        requests.put(self.address+'/api//tag/values/by-name', json=payload)
+        requests.put(self.address+'/api/tag/values/by-name', json=payload)
     
     def fetch_tags(self):
         for tg in self.tag_table:
@@ -131,7 +136,11 @@ class Conveyor():
                 self.actuator.set_value(True)
         self.actuator.set_value(False)
         return('1')
-    
+
+    async def accept(self):
+        self.busy = True
+        self.actuator.set_value(True)
+
     async def transit_next(self):
         while( self.laser.get_value() == False ): 
             await asyncio.sleep(ASYNC_SLEEP_TIME)
