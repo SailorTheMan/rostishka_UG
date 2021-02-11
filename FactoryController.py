@@ -5,6 +5,7 @@ import asyncio
 from time import sleep
 
 ASYNC_SLEEP_TIME = 0.05
+DEFAULT_ACCEPT_TIME = 2.7
 
 '''         JSON EXAMPLE
 {
@@ -162,7 +163,7 @@ class Conveyor():
 
 class Crossing_conveyor():
 
-    def __init__(self, forw_tag, back_tag, left_tag, right_tag, capacity, laser_out, stop_tag = None):
+    def __init__(self, forw_tag, back_tag, left_tag, right_tag, capacity, laser_out, stop_tag = None, wait_time=DEFAULT_ACCEPT_TIME):
         self.forward = forw_tag
         self.back = back_tag
         self.left = left_tag
@@ -170,20 +171,24 @@ class Crossing_conveyor():
         self.capacity = capacity
         self.laser = laser_out
         self.stop_tag = stop_tag        # barrier 
+        self.wait_time = wait_time
 
         self.directions = {'forward': self.forward, 'back': self.back, 'left': self.left, 'right': self.right }
     
     async def accept_to(self, direction):
-        self.stop_tag.set_value(True)
+        #self.stop_tag.set_value(True)
         self.directions[direction].set_value(True)
-        while( self.capacity.get_value() == False ): 
+        while( self.capacity.get_value() == True ): 
             if self.directions[direction].value != True:
-                self.directions[direction].set_value(True)
+                self.directions[direction].set_value(True)      # a little http optimiztion
             await asyncio.sleep(ASYNC_SLEEP_TIME)
-        await asyncio.sleep(0.2)            # a little delay for better positioning
+        await asyncio.sleep(self.wait_time)            # a little delay for better positioning
         self.directions[direction].set_value(False)
         return(1)
     
-    async def move_to(self, direction):      ## TODO multidirectional move
-        self.left
-        pass
+    async def move_to(self, direction):         ## TODO multidirectional move
+        self.directions[direction].set_value(True)
+        await asyncio.sleep(3)
+        self.directions[direction].set_value(False)
+        return(1)
+        

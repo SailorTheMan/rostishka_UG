@@ -93,7 +93,8 @@ async def loop():
 async def wtf():
     #await asyncio.gather(RC10.move(), RC1.move(), RCa1.move(), RCCa2.move(), RCa3.move(), lRCa4.move())
     await RC1.move()
-    await asyncio.gather(RC1.transit_next(), CT1.accept())
+    await asyncio.gather(RC1.transit_next(), CT1.accept_to('forward'))
+    await asyncio.gather(CT1.move_to('left'), CT1A.accept_to('right'))
 
 
 
@@ -107,48 +108,52 @@ if __name__ == '__main__':
     em1_part = controller.attach_tag('Emitter 1 (Part)')
     em1_emit = controller.attach_tag('Emitter 1 (Emit)')
     ## linear conveyor spawn 
-    rc_input = controller.attach_tag('RC (4m) 1.1')
-    rs1_in = controller.attach_tag('RS 1 In')
+    rc_input =  controller.attach_tag('RC (4m) 1.1')
+    rs1_in =    controller.attach_tag('RS 1 In')
     ## RFID ON ENTRANCE
-    rfid_command = controller.attach_tag("RFID In Command")
-    rfid_iec = controller.attach_tag("RFID In Execute Command")
-    rfid_iread = controller.attach_tag("RFID In Read Data")
-    rfid_stat = controller.attach_tag("RFID In Status")
-
+    rfid_command =  controller.attach_tag("RFID In Command")
+    rfid_iec =      controller.attach_tag("RFID In Execute Command")
+    rfid_iread =    controller.attach_tag("RFID In Read Data")
+    rfid_stat =     controller.attach_tag("RFID In Status")
     ## crossing conveyor entrance
-    ct1_plus = controller.attach_tag("CT 1 (+)", tag_id='17862cd4-a781-4ee8-8f5b-12543abc0c12')
-    ct1_min = controller.attach_tag("CT 1 (-)", tag_id='54fd23dc-c971-4ce9-9561-46d223a0b786')
-    ct1_left = controller.attach_tag("CT 1 Left")
+    ct1_plus =  controller.attach_tag("CT 1 (+)", tag_id='17862cd4-a781-4ee8-8f5b-12543abc0c12')
+    ct1_min =   controller.attach_tag("CT 1 (-)", tag_id='54fd23dc-c971-4ce9-9561-46d223a0b786')
+    ct1_left =  controller.attach_tag("CT 1 Left")
     ct1_right = controller.attach_tag("CT 1 Right")
-    cs_1 = controller.attach_tag("CS 1")
-    stop_ct1 = controller.attach_tag("StopR 1 Out")
+    cs_1 =      controller.attach_tag("CS 1")
+    stop_ct1 =  controller.attach_tag("StopR 1 Out")
+    rs1_out  =  controller.attach_tag('RS 1 Out')
     ## crossing conveyor next to entrance one
-    ct1a_right = controller.attach_tag("CT 1A Right")
-    cs_1a = controller.attach_tag("CS 1A")
-    
-    rs1a_out = controller.attach_tag('RS 1A Out')
+    ct1a_plus =     controller.attach_tag("CT 1A (+)", tag_id='6ba24a7c-543c-4f84-bcb1-fc02ccc9078c')
+    ct1a_min =      controller.attach_tag("CT 1A (-)", tag_id='f89666ca-4a6f-4af5-ac23-ba820d0b2597')
+    ct1a_left =     controller.attach_tag("CT 1A Left") 
+    ct1a_right =    controller.attach_tag("CT 1A Right")
+    cs_1a =         controller.attach_tag("CS 1A")
+    stop_ct1a =     controller.attach_tag("StopR 1A In")
+    rs1a_out =      controller.attach_tag('RS 1A Out')
     ## Conveyors curve 1A - Crane 1
-    rc_a1 = controller.attach_tag('RC A1')
-    rcc_a2 = controller.attach_tag('Curved RC A2')
-    rc_a3 = controller.attach_tag('RC A3')
+    rc_a1 =     controller.attach_tag('RC A1')
+    rcc_a2 =    controller.attach_tag('Curved RC A2')
+    rc_a3 =     controller.attach_tag('RC A3')
     ## First crane arrivals
-    l_rc_a4 = controller.attach_tag('Load RC A4')
-    al_a = controller.attach_tag('At Load A')
+    l_rc_a4 =   controller.attach_tag('Load RC A4')
+    al_a =      controller.attach_tag('At Load A')
     ## test conveyor
     rc_test = controller.attach_tag('RC A10')
     rs1a_in = controller.attach_tag('RS 1A In')
 
-    ## CONVEYORS 
-    RC1 = fio.Conveyor(rc_input, rs1_in, (rfid_command, rfid_iec, rfid_iread, rfid_stat))
-    RC10 = fio.Conveyor(rc_test, rs1a_in)
-    RCa1 = fio.Conveyor(rc_a1, al_a)
-    RCCa2 = fio.Conveyor(rcc_a2, al_a)
-    RCa3 = fio.Conveyor(rc_a3, al_a)
-    lRCa4 = fio.Conveyor(l_rc_a4, al_a)
+    ##      CONVEYORS 
+    RC1 =   fio.Conveyor(rc_input, rs1_in, (rfid_command, rfid_iec, rfid_iread, rfid_stat))
+    RC10 =  fio.Conveyor(rc_test, rs1a_in)
+    RCa1 =  fio.Conveyor(rc_a1, al_a)
+    RCCa2 = fio.Conveyor(rcc_a2, al_a)  # arc start
+    RCa3 =  fio.Conveyor(rc_a3, al_a)
+    lRCa4 = fio.Conveyor(l_rc_a4, al_a) # arc end
 
-    ## CROSSING CONVEYORS
-    CT1 = fio.Crossing_conveyor(ct1_plus, ct1_min, ct1_left, ct1_right, cs_1, None, stop_ct1)
-    #CT1A = fio.Crossing_conveyor()
+    ##      CROSSING CONVEYORS
+    CT1 =   fio.Crossing_conveyor(ct1_plus, ct1_min, ct1_left, ct1_right, cs_1, rs1_out, stop_ct1, wait_time=2.1)
+    CT1A =  fio.Crossing_conveyor(ct1a_plus, ct1a_min, ct1a_left, ct1a_right, cs_1a, rs1a_out, stop_ct1a, wait_time=3.5)
+
     #####   END DECLARATION   #####
 
     # controller.sim_start()     doesnt work as expected
