@@ -9,8 +9,13 @@ import FactoryController as fio
 SIM_ADDRESS = 'http://127.0.0.1:7410'    #my VM address
 
 
-def item_to_shelf_A(number):
+def item_from_shelf_A(number):
     
+    targ_pos_a.set_value(number)
+    sleep(0.1)
+    while (mov_z_a.get_value() or mov_x_a.get_value()): sleep(0.05)
+
+
     fork_left_a.set_value(True)
     while(not(at_left_a.get_value())): sleep(0.05)
    
@@ -21,28 +26,30 @@ def item_to_shelf_A(number):
     fork_left_a.set_value(False)
     while(not((at_mid_a.get_value()))): sleep(0.05)
 
-    
-    targ_pos_a.set_value(number)
+    targ_pos_a.set_value(55)
     sleep(0.1)
-    while (mov_z_a.get_value() or mov_x_a.get_value()): sleep(0.05)
+    while(mov_z_a.get_value()) or mov_x_a.get_value(): sleep(0.05)
     
-    fork_left_a.set_value(True)
-    while(not(at_left_a.get_value())): sleep(0.05)
+    
+    fork_right_a.set_value(True)
+    while(not(at_right_a.get_value())): sleep(0.05)
    
     lift_a.set_value(False)
     sleep(0.1)
     while(mov_z_a.get_value()): sleep(0.05)
     
-    fork_left_a.set_value(False)
+    fork_right_a.set_value(False)
     while(not(at_mid_a.get_value())): sleep(0.05)
     
-    targ_pos_a.set_value(55)
-    sleep(0.1)
-    while(mov_z_a.get_value()) or mov_x_a.get_value(): sleep(0.05)
-
-
-def item_to_shelf_B(number):
     
+
+
+def item_from_shelf_B(number):
+    
+    targ_pos_b.set_value(number)
+    sleep(0.1)
+    while (mov_z_b.get_value() or mov_x_b.get_value()): sleep(0.05)
+
     fork_left_b.set_value(True)
     while(not(at_left_b.get_value())): sleep(0.05)
    
@@ -53,24 +60,22 @@ def item_to_shelf_B(number):
     fork_left_b.set_value(False)
     while(not((at_mid_b.get_value()))): sleep(0.05)
 
-    
-    targ_pos_b.set_value(number)
+    targ_pos_b.set_value(55)
     sleep(0.1)
-    while (mov_z_b.get_value() or mov_x_b.get_value()): sleep(0.05)
+    while(mov_z_b.get_value()) or mov_x_b.get_value(): sleep(0.05)
+
     
-    fork_left_b.set_value(True)
-    while(not(at_left_b.get_value())): sleep(0.05)
+    fork_right_b.set_value(True)
+    while(not(at_right_b.get_value())): sleep(0.05)
    
     lift_b.set_value(False)
     sleep(0.1)
     while(mov_z_b.get_value()): sleep(0.05)
     
-    fork_left_b.set_value(False)
+    fork_right_b.set_value(False)
     while(not(at_mid_b.get_value())): sleep(0.05)
     
-    targ_pos_b.set_value(55)
-    sleep(0.1)
-    while(mov_z_b.get_value()) or mov_x_b.get_value(): sleep(0.05)
+
 
 
 
@@ -99,6 +104,5 @@ if __name__ == '__main__':
 
 
     
-       
-    item_to_shelf_B(15)
-
+    # item_from_shelf_A(20)
+    item_from_shelf_B(15)
