@@ -217,3 +217,97 @@ class Crossing_conveyor():
         self.directions[direction].set_value(False)
         return(1)
         
+
+
+class Crane:
+    # my first class)))
+
+    def __init__(self, 
+                mov_x_a: Tag,
+                mov_z_a: Tag,
+                targ_pos_a: Tag,
+                at_mid_a: Tag,
+                at_left_a: Tag,
+                at_right_a: Tag,
+                fork_left_a: Tag,
+                fork_right_a: Tag,
+                lift_a: Tag):
+
+        self.mov_x_a = mov_x_a
+        self.mov_z_a = mov_z_a
+        self.targ_pos_a = targ_pos_a
+        self.at_mid_a = at_mid_a
+        self.at_left_a = at_left_a
+        self.at_right_a = at_right_a
+        self.fork_left_a = fork_left_a
+        self.fork_right_a = fork_right_a
+        self.lift_a = lift_a
+
+        self.busy = False
+
+
+    async def to_shelf(self, number):
+        self.busy = True
+        self.fork_left_a.set_value(True)
+        while(not(self.at_left_a.get_value())): await asyncio.sleep(0.1)
+
+        self.lift_a.set_value(True)
+        await asyncio.sleep(0.1)
+        while(not(self.mov_z_a.get_value())): await asyncio.sleep(0.1)
+
+
+        self.fork_left_a.set_value(False)
+        while(not((self.at_mid_a.get_value()))): await asyncio.sleep(0.1)
+
+
+        self.targ_pos_a.set_value(number)
+        await asyncio.sleep(0.1)
+        while (self.mov_z_a.get_value() or self.mov_x_a.get_value()): await asyncio.sleep(0.1)
+
+        self.fork_left_a.set_value(True)
+        while(not(self.at_left_a.get_value())): await asyncio.sleep(0.1)
+
+        self.lift_a.set_value(False)
+        await asyncio.sleep(0.1)
+        while(self.mov_z_a.get_value()): await asyncio.sleep(0.1)
+
+        self.fork_left_a.set_value(False)
+        while(not(self.at_mid_a.get_value())): await asyncio.sleep(0.1)
+
+        self.targ_pos_a.set_value(55)
+        await asyncio.sleep(0.1)
+        while(self.mov_z_a.get_value()) or self.mov_x_a.get_value(): await asyncio.sleep(0.1)
+
+
+    async def from_shelf(self, number):
+        self.busy = True
+        self.targ_pos_a.set_value(number)
+        await asyncio.sleep(0.1)
+        while (self.mov_z_a.get_value() or self.mov_x_a.get_value()): await asyncio.sleep(0.1)
+
+
+        self.fork_left_a.set_value(True)
+        while(not(self.at_left_a.get_value())): await asyncio.sleep(0.1)
+    
+        self.lift_a.set_value(True)
+        await asyncio.sleep(0.1)
+        while(not(self.mov_z_a.get_value())): await asyncio.sleep(0.1)
+
+    
+        self.fork_left_a.set_value(False)
+        while(not((self.at_mid_a.get_value()))): await asyncio.sleep(0.1)
+
+        self.targ_pos_a.set_value(55)
+        await asyncio.sleep(0.1)
+        while(self.mov_z_a.get_value()) or self.mov_x_a.get_value(): await asyncio.sleep(0.1)
+        
+        
+        self.fork_right_a.set_value(True)
+        while(not(self.at_right_a.get_value())): await asyncio.sleep(0.1)
+    
+        self.lift_a.set_value(False)
+        await asyncio.sleep(0.1)
+        while(self.mov_z_a.get_value()): await asyncio.sleep(0.1)
+        
+        self.fork_right_a.set_value(False)
+        while(not(self.at_mid_a.get_value())): await asyncio.sleep(0.1)

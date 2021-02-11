@@ -145,6 +145,26 @@ if __name__ == '__main__':
     rc_b1      = controller.attach_tag('RC B1')
     rsb_in     = controller.attach_tag('RS B In')
 
+    ## cranes tags
+    mov_x_a = controller.attach_tag('Moving X A')
+    mov_z_a = controller.attach_tag('Moving Z A')
+    targ_pos_a = controller.attach_tag('Target Position A')
+    at_mid_a = controller.attach_tag('At Middle A')
+    at_left_a = controller.attach_tag('At Left A')
+    at_right_a = controller.attach_tag('At Right A')
+    fork_left_a = controller.attach_tag('Forks Left A')
+    fork_right_a = controller.attach_tag('Forks Right A')
+    lift_a = controller.attach_tag('Lift A')
+    mov_x_b = controller.attach_tag('Moving X B')
+    mov_z_b = controller.attach_tag('Moving Z B')
+    targ_pos_b = controller.attach_tag('Target Position B')
+    at_mid_b = controller.attach_tag('At Middle B')
+    at_left_b = controller.attach_tag('At Left B')
+    at_right_b = controller.attach_tag('At Right B')
+    fork_left_b = controller.attach_tag('Forks Left B')
+    fork_right_b = controller.attach_tag('Forks Right B')
+    lift_b = controller.attach_tag('Lift B')
+
     ##      CONVEYORS 
     RC1   = controller.attach_machine('RC1', fio.Conveyor(rc_input, rs1_in, (rfid_command, rfid_iec, rfid_iread, rfid_stat)))
     RCa1  = controller.attach_machine('RCa1', fio.Conveyor(rc_a1, al_a))
@@ -170,6 +190,31 @@ if __name__ == '__main__':
     CT4     = controller.attach_machine('CT4', fio.Crossing_conveyor(ct4_plus, ct4_min, ct4_left, ct4_right, cs_4, rs4_out, wait_time=2.1))
     CT4B    = controller.attach_machine('CT4B', fio.Crossing_conveyor(ct4b_plus, ct4b_min, ct4b_left, ct4b_right, cs_4b, rs4b_out, wait_time=3.5))
 
+    ##  CRANES
+    Crane_A = controller.attach_machine('Crane_A', fio.Crane(mov_x_a, 
+                                                            mov_z_a, 
+                                                            targ_pos_a, 
+                                                            at_mid_a, 
+                                                            at_left_a, 
+                                                            at_right_a, 
+                                                            fork_left_a, 
+                                                            fork_right_a, 
+                                                            lift_a 
+                                                            ))
+
+    Crane_B = controller.attach_machine('Crane_B', fio.Crane(mov_x_b, 
+                                                            mov_z_b, 
+                                                            targ_pos_b, 
+                                                            at_mid_b, 
+                                                            at_left_b, 
+                                                            at_right_b, 
+                                                            fork_left_b, 
+                                                            fork_right_b, 
+                                                            lift_b 
+                                                            ))
+
+
+
     #####   END DECLARATION   #####
 
     # controller.sim_start()     doesnt work as expected
@@ -185,7 +230,12 @@ if __name__ == '__main__':
     #loop = asyncio.get_event_loop()  
     #asyncio.ensure_future(rc10.move())
     #asyncio.ensure_future(rc1.move())
-
+    #  Перед запуском программы надо скзать базе данных что в симуляции ничего нет
+    conn = sqlite3.connect('sim_data.sqlite')
+    cursor = conn.cursor()
+    cursor.execute("UPDATE id_factory SET in_sim=0")
+    conn.commit()
+    conn.close()
 
 
     #while(True):
