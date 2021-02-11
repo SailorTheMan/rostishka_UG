@@ -19,16 +19,7 @@ START_TIME = time.time()
 WAIT_ITEM_RFID = False
 LAST_RFID = None
 
-def select_item(conn, priority):
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM id_factory WHERE ID=?", (priority,))
 
-    rows = cur.fetchall()
-
-    for row in rows:
-        print(row)
-    
-    return rows
 
 def time_to_sec(cur_time):
     ten = time.strptime('10:00:00', "%H:%M:%S")
@@ -52,7 +43,7 @@ def find_pending_items(conn):
 
 def get_RFID():
     # делаю прямыми сетами и гетами потому что тут нужно сразу получить реакцию
-    rfid_command.set_value('1')
+    rfid_command.set_value(1)
     rfid_iec.set_value(True)
     time.sleep(0.1)
     stat = rfid_stat.get_value()
@@ -69,7 +60,7 @@ def spawn__item(item):
     # TODO добавить условие ожидание ошибки 1 (ожидать пока коробка уедет из зоны действия рфид датчика)
     global LAST_RFID
     global WAIT_ITEM_RFID
-    em1_emit.value = 'false'
+    em1_emit.set_value('false')
     # conn to db
     conn = sqlite3.connect('sim_data.sqlite')
     cursor = conn.cursor()
@@ -79,11 +70,10 @@ def spawn__item(item):
         RFID_value = None
 
     if (not(WAIT_ITEM_RFID) and rfid_stat.value == 1):
-        em1_part.value = 8192
-        em1_emit.value = "true"
+        em1_part.set_value(8192)
+        em1_emit.set_value("true")
         WAIT_ITEM_RFID = True
-        # TODO возможно тут надо как то по разумистки включать конвейер но пока так
-        rc_input.value = 'true'
+        rc_input.set_value('true')
     
 
     if RFID_value is not None:
@@ -299,6 +289,7 @@ if __name__ == '__main__':
     RCb1  = controller.attach_machine('RCb1', fio.Conveyor(rc_b1, rsb_in))
     #endregion
 
+
     #region ##      CONVEYOR SERIES         ##
     Arc1    = controller.attach_machine('Arc1', fio.Conv_Series(al_a, rc_a1, rcc_a2, rc_a3, l_rc_a4))
     Bridge1 = controller.attach_machine('Bridge1', fio.Conv_Series(rs2_in, rc_1_2, rc_1_3)) # Between CT1 and CT2
@@ -316,9 +307,7 @@ if __name__ == '__main__':
     CT4B    = controller.attach_machine('CT4B', fio.Crossing_conveyor(ct4b_plus, ct4b_min, ct4b_left, ct4b_right, cs_4b, rs4b_out, wait_time=3.5))
     #endregion
     
-    #endregion      #####   END DECLARATION   #####
-
-    ##  CRANES
+        ##  CRANES
     Crane_A = controller.attach_machine('Crane_A', fio.Crane(mov_x_a, 
                                                             mov_z_a, 
                                                             targ_pos_a, 
@@ -342,8 +331,8 @@ if __name__ == '__main__':
                                                             ))
 
 
+    #endregion      #####   END DECLARATION   #####
 
-    #####   END DECLARATION   #####
 
     # controller.sim_start()     doesnt work as expected
     controller.fetch_tags()
