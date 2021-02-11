@@ -1,4 +1,9 @@
 
 .vscode/settings.json
 __pycache__/FactoryController.cpython-37.pyc
+<<<<<<< HEAD
 __pycache__/FactoryController.cpython-38.pyc
+=======
+.vscode/settings.json
+*.pyc
+>>>>>>> 1ae3d60bcc816f854acc967842fab6da6655d384
