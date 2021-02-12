@@ -154,6 +154,10 @@ footer a:hover{
 
 .cropped1-img {
   max-width: 80px !important; /* width of container */
-  max-height: 80px !important; /* height of container */
+  max-height: 0px !important; /* height of container */
   object-fit: cover !important;
+}
+
+.card-body .about-link{
+  text-decoration: none !important;
 }

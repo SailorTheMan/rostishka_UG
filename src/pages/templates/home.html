@@ -3,15 +3,17 @@
 {% block content %}
 <div class="wrapper">
     <div class="container main">
-        <p>ООО “Современные технологии автоматизации”</p>
+        <h2>ООО “Современные технологии автоматизации”</h2>
         <p>Автоматизированное складское помещение без использования человеческих ресурсов уже на вашем производстве</p>
         <p>На данном сайте представлено пример того, как можно автоматизировать ваш склад и сэкономить на этом ваши деньги</p>
         {% comment %} <a href="">Посмотреть видео о разработке</p></a> {% endcomment %}
 
                 <!-- Button trigger modal -->
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                
+        <a href="#" class="link-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        <img src="{% static 'images/play.png' %}" width="55px" alt="">
         Посмотреть видео о разработке
-        </button>
+        </a>
 
         <!-- Modal -->
         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -167,43 +169,64 @@
         </div>
     </div>
 
-    <div class="team">
-        <div class="container">
+    <div class="team mb-3">
+        <div class="container" style="width:18rem">
             <div class="header text-center  ">
                 <h3>Наша команда разработки</h3>
                 <p>Вы можете обратиться к нам лично при любых вопросах</p>
             </div>
-            <div class="cards row">
-                <div class="card col" style="width: 18rem;">
-                    <img src="{% static 'images/matvey.jpg' %}" class="card-img-top cropped-img" alt="...">
-                    <div class="card-body">
-                    <h5 class="card-title">Matthew</h5>
-                    <a href="https://t.me/panteleeff" class="">t.me/panteleeff</a>
+            <div id="carouselExampleIndicators" class="carousel slide py-3" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                </div>
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        
+                        <div class="card" style="width: 18rem;">
+                            <img src="{% static 'images/matvey.jpg' %}" class="card-img-top cropped-img" alt="...">
+                            <div class="card-body">
+                            <h5 class="card-title">Matthew</h5>
+                            <a href="https://t.me/panteleeff" class="">t.me/panteleeff</a>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="carousel-item">
+                        <div class="card" style="width: 18rem;">
+                            <img src="{% static 'images/vlad.jpg' %}" class="card-img-top cropped-img"  alt="...">
+                            <div class="card-body">
+                            <h5 class="card-title">Владос</h5>
+                            <a href="https://t.me/sailor_twift" class="">t.me/sailor_twift</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="card" style="width: 18rem;">
+                            <img src="{% static 'images/andrew.jpg' %}" class="card-img-top cropped-img" alt="...">
+                            <div class="card-body">
+                            <h5 class="card-title">Дюша</h5>
+                            <a href="https://t.me/pestaUwU" class="">t.me/pestaUwU</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <div class="card col" style="width: 18rem;">
-                    <img src="{% static 'images/vlad.jpg' %}" class="card-img-top cropped-img"  alt="...">
-                    <div class="card-body">
-                    <h5 class="card-title">Владос</h5>
-                    <a href="https://t.me/sailor_twift" class="">t.me/sailor_twift</a>
-                    </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"  data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators"  data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
                 </div>
-
-                <div class="card col" style="width: 18rem;">
-                    <img src="{% static 'images/andrew.jpg' %}" class="card-img-top cropped-img" alt="...">
-                    <div class="card-body">
-                    <h5 class="card-title">Дюша</h5>
-                    <a href="https://t.me/pestaUwU" class="">t.me/pestaUwU</a>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
 
     <div class="phrase">
-        <div class="container text-center py-5" style="width:500px">
+        <div class="container text-center py-3" style="width:500px">
             <p>Задача, с которой мы обратились к вашей компании состояла в том, чтобы автоматизировать 
                 огромные складские помещения известного всем россиянам магазина одежды. Полученные результаты 
                 удивили нас всех, так как компания уменьшила затраты на логистику на 30%, а время доставки грузов на 35%</p>

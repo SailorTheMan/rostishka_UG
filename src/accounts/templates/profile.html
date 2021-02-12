@@ -1,7 +1,13 @@
+{% extends 'base.html' %}
 {% block content %}
-<h2>{{ user.email }}</h2>
-<ul>
-  <li>Email: {{ user.email }}</li>
-  <li>Bio: {{ user.profile.bio }}</li>
-</ul>
+<div class="container">
+  <h2>Личный кабинет сотрудника</h2>
+  <div class="content">
+    <h2>{{ user.first_name }} {{user.second_name}}</h2>
+    <ul>
+      <li>Email: {{ user.email }}</li>
+      <li>Bio: {{ user.profile.bio }}</li>
+    </ul>
+  </div>
+</div>
 {% endblock %}
