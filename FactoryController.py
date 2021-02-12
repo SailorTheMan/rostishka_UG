@@ -220,8 +220,8 @@ class Crossing_conveyor():
 
 class Junction:
     def __init__(self, ct_: Crossing_conveyor, ct_a: Crossing_conveyor):
-        self.ct_a = ct_
-        self.ct_b = ct_a
+        self.ct_ = ct_
+        self.ct_a = ct_a
         self.tasks = asyncio.Queue()
 
     async def transit_ab(self):

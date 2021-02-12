@@ -1,4 +1,4 @@
-#!/.venv/Scripts/python.exe
+#/.venv/Scripts/python.exe
 
 import requests
 import json
@@ -114,7 +114,7 @@ async def spawn__item(item, commands ):
         new_cargo = cargo.Cargo(controller, RFID_value, destination=dist)
         storekeeper.add_cargo(new_cargo)
         #task = asyncio.create_task()
-        await commands.put(new_cargo.execute())
+        #await commands.put(new_cargo.execute())
 
         ######################################################
         WAIT_ITEM_RFID = False
@@ -193,23 +193,12 @@ async def to_crane_a(cur_cargo):
         #ct1_plus.set_value(True)
         #while (not(cs_1.get_value())): await asyncio.sleep(0.1)
         #await asyncio.sleep(0.205)
-        await CT1.move_to('forward')
-        await asyncio.gather(JN1)
         
-        ct1_left.set_value(True)
-        ct1a_right.set_value(True)
-        while (rs1a_out.get_value()): await asyncio.sleep(0.1)
-        ct1_left.set_value(False)
-        rc_a1.set_value(True)
-        rcc_a2.set_value(True)
-        rc_a3.set_value(True)
-        l_rc_a4.set_value(True)
-        while (al_a.get_value()): await asyncio.sleep(0.1)
-        rc_a1.set_value(False)
-        rcc_a2.set_value(False)
-        rc_a3.set_value(False)
-        l_rc_a4.set_value(False)
+        await asyncio.gather(CT1.accept_to('forward'), RC1.transit_next())
+        await JN1.transit_ab()
+        await asyncio.gather(CT1A.move_to('right'), Arc1.move())
         await Crane_A.to_shelf(cur_cargo.destination)
+        
         cur_cargo.current_position = 'en cell'
         cursor.execute("UPDATE id_factory SET en_route=0 WHERE RFID_ID=?;", (cur_cargo.rf_id, ))
         conn.commit()
@@ -267,13 +256,13 @@ async def from_crane_a(cur_cargo):
         # storekepper.active_cargo.pop(cur_cargo.rf_id)
         LINE_A_BUSY = False
 
-async def produce_tasks():
+async def produce_tasks(commands):
     global LAST_CARGO
     task_issued = True
     cargo_spawn = True
     while True:
         
-        await database_routine()
+        await asyncio.create_task(database_routine(commands))
         if len(storekeeper.active_cargo) != 0:
 
             for cur_cargo in storekeeper.active_cargo.values():    
@@ -337,11 +326,11 @@ async def za_loopu():
     commands = asyncio.Queue()
     
     produce = asyncio.create_task(produce_tasks(commands))
-    consume = asyncio.create_task(consume_tasks(commands))
+    #consume = asyncio.create_task(consume_tasks(commands))
 
     #asyncio.gather(produce_tasks(), )
     await produce
-    await consume
+    #await consume
     
     elapsed = time.perf_counter() - start
     print('loop time: ' + elapsed)
