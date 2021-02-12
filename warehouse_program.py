@@ -228,12 +228,54 @@ if __name__ == '__main__':
     ## linear conveyor spawn 
     rc_input =  controller.attach_tag('RC (4m) 1.1')
     rs1_in =    controller.attach_tag('RS 1 In')
+    #region ###       RFIDdeclaration      ###
     ## RFID ON ENTRANCE
     rfid_command =  controller.attach_tag("RFID In Command")
     rfid_iec =      controller.attach_tag("RFID In Execute Command")
     rfid_iread =    controller.attach_tag("RFID In Read Data")
     rfid_stat =     controller.attach_tag("RFID In Status")
-    ## crossing conveyor entrance   CT 1
+    ## RFID CRANE A IN
+    rfid_command_a1 =  controller.attach_tag("RFID A1 Command")
+    rfid_iec_a1 =      controller.attach_tag("RFID A1 Execute Command")
+    rfid_iread_a1 =    controller.attach_tag("RFID A1 Read Data")
+    rfid_stat_a1 =     controller.attach_tag("RFID A1 Status")
+    ## RFID CRANE A MID
+    rfid_command_a2 =  controller.attach_tag("RFID A2 Command")
+    rfid_iec_a2 =      controller.attach_tag("RFID A2 Execute Command")
+    rfid_iread_a2 =    controller.attach_tag("RFID A2 Read Data")
+    rfid_stat_a2 =     controller.attach_tag("RFID A2 Status")
+    ## RFID CRANE A OUT
+    rfid_command_a3 =  controller.attach_tag("RFID A3 Command")
+    rfid_iec_a3 =      controller.attach_tag("RFID A3 Execute Command")
+    rfid_iread_a3 =    controller.attach_tag("RFID A3 Read Data")
+    rfid_stat_a3 =     controller.attach_tag("RFID A3 Status")
+    ## RFID CRANE B IN
+    rfid_command_b1 =  controller.attach_tag("RFID B2 Command")
+    rfid_iec_b1 =      controller.attach_tag("RFID B2 Execute Command")
+    rfid_iread_b1 =    controller.attach_tag("RFID B2 Read Data")
+    rfid_stat_b1 =     controller.attach_tag("RFID B2 Status")
+    ## RFID CRANE B MID
+    rfid_command_b2 =  controller.attach_tag("RFID B2 Command")
+    rfid_iec_b2 =      controller.attach_tag("RFID B2 Execute Command")
+    rfid_iread_b2 =    controller.attach_tag("RFID B2 Read Data")
+    rfid_stat_b2 =     controller.attach_tag("RFID B2 Status")
+    ## RFID CRANE B OUT
+    rfid_command_b3 =  controller.attach_tag("RFID B3 Command")
+    rfid_iec_b3 =      controller.attach_tag("RFID B3 Execute Command")
+    rfid_iread_b3 =    controller.attach_tag("RFID B3 Read Data")
+    rfid_stat_b3 =     controller.attach_tag("RFID B3 Status")
+    ## RFID OUT
+    rfid_command_out =  controller.attach_tag("RFID Out Command")
+    rfid_iec_out =      controller.attach_tag("RFID Out Execute Command")
+    rfid_iread_out =    controller.attach_tag("RFID Out Read Data")
+    rfid_stat_out =     controller.attach_tag("RFID Out Status")
+    ## RFID MIDLE (2)
+    rfid_command_2 =  controller.attach_tag("RFID 2 Command")
+    rfid_iec_2 =      controller.attach_tag("RFID 2 Execute Command")
+    rfid_iread_2 =    controller.attach_tag("RFID 2 Read Data")
+    rfid_stat_2 =     controller.attach_tag("RFID 2 Status")
+    #endregion RFID
+    #region ## crossing conveyor entrance   CT 1
     ct1_plus =  controller.attach_tag("CT 1 (+)", tag_id='17862cd4-a781-4ee8-8f5b-12543abc0c12')
     ct1_min =   controller.attach_tag("CT 1 (-)", tag_id='54fd23dc-c971-4ce9-9561-46d223a0b786')
     ct1_left =  controller.attach_tag("CT 1 Left")
@@ -250,13 +292,24 @@ if __name__ == '__main__':
     stop_ct1a =     controller.attach_tag("StopR 1A In")
     rs1a_out =      controller.attach_tag('RS 1A Out')
     ## crossing conveyor     CT 2
+    
     ct2_plus =     controller.attach_tag("CT 2 (+)", tag_id='2ec8620c-d077-4fc7-bb67-14b08d4fd291')
-    ct2_min =      controller.attach_tag("CT 2 (-)", tag_id='59455ffe-c196-423a-a1da-9606b261f0b2')
+    ct2_min =      controller.attach_tag("CT 2 (-)", tag_id='2cb81931-e880-4259-a2b7-37f8ce9f2df5')
     ct2_left =     controller.attach_tag("CT 2 Left") 
     ct2_right =    controller.attach_tag("CT 2 Right")
     cs_2 =         controller.attach_tag("CS 2")
     #stop_ct1a =     controller.attach_tag("StopR 1A In")
     rs2_out =      controller.attach_tag('RS 2 Out')
+    ## crossing conveyor     CT 2A
+    ct2a_plus =     controller.attach_tag("CT 2A (+)", tag_id='03e94313-67d4-4581-96b9-0734b869e7dd')
+    ct2a_min =      controller.attach_tag("CT 2A (-)", tag_id='59455ffe-c196-423a-a1da-9606b261f0b2')
+    ct2a_left =     controller.attach_tag("CT 2A Left") 
+    ct2a_right =    controller.attach_tag("CT 2A Right")
+    csa_2 =         controller.attach_tag("CS 2A")
+    stop_ct2a_a =     controller.attach_tag("StopR 2A In from A")
+    stop_ct2a_out =     controller.attach_tag("StopR 2A Out")
+    stop_ct2a_b =     controller.attach_tag("StopR 2A In from B")
+    rs2a_out =      controller.attach_tag('RS 2A Out')
     ## crossing conveyor   CT 3
     ct3_plus =  controller.attach_tag("CT 3 (+)", tag_id='15afa08d-9a9f-42e8-a8fe-1030d3224d56')
     ct3_min =   controller.attach_tag("CT 3 (-)", tag_id='8fe8c0f9-843f-4047-a56f-276b4767a4eb')
@@ -289,6 +342,29 @@ if __name__ == '__main__':
     cs_4b =      controller.attach_tag("CS 4B")
     #stop_ct4b =  controller.attach_tag("StopR 4B")
     rs4b_out  =  controller.attach_tag('RS 4B Out')
+    ## crossing conveyor    CT A
+    cta_plus =  controller.attach_tag("CT A (+)", tag_id='58cdb614-f01d-42b7-aefc-d89a5a44b010')
+    cta_min =   controller.attach_tag("CT A (-)", tag_id='e6316ee7-509f-4d97-87a8-0205ed6c7f58')
+    cta_left =  controller.attach_tag("CT A Left")
+    cta_right = controller.attach_tag("CT A Right")
+    cs_a =      controller.attach_tag("CS A")
+    stop_ra =  controller.attach_tag("StopR A")
+    # rsa_out  =  controller.attach_tag('RS A Out')
+    # rsa_in  =  controller.attach_tag('RS A In')
+    # rsa_out_b  =  controller.attach_tag('RS A Out to B')
+    ## crossing conveyor    CT B
+    ctb_plus =  controller.attach_tag("CT B (+)", tag_id='d2da4b96-552a-4f0b-8840-323d85aaf7b5')
+    ctb_min =   controller.attach_tag("CT B (-)", tag_id='8a563e51-e1a7-4d94-b75e-0db6d7439e99')
+    ctb_left =  controller.attach_tag("CT B Left")
+    ctb_right = controller.attach_tag("CT B Right")
+    cs_b =      controller.attach_tag("CS B")
+    stop_rb =  controller.attach_tag("StopR B")
+    # rsb_out  =  controller.attach_tag('RS B Out')
+    # rsb_in  =  controller.attach_tag('RS B In')
+    # rsb_out  =  controller.attach_tag('RS B Out')
+    #endregion crossing
+
+
     ## conveyors CT1 -> CT2
     rc_1_2      = controller.attach_tag('RC (6m) 1.2')
     rc_1_3      = controller.attach_tag('RC (2m) 1.3')
@@ -313,6 +389,14 @@ if __name__ == '__main__':
     ## First crane arrivals
     l_rc_a4 =   controller.attach_tag('Load RC A4')
     al_a =      controller.attach_tag('At Load A')
+    ## First crane out
+    ul_rc_a5 =   controller.attach_tag('Unload RC A5')
+    rc_a6 =      controller.attach_tag('RC A6')
+    rs_a_in =    controller.attach_tag('RS A In')
+    ## conveyor CT A -> CT 2A
+    rs_a_out =    controller.attach_tag('RS A Out')
+    rc_a8      = controller.attach_tag('RC A8')
+    rs_2a_in_a     = controller.attach_tag('RS 2A In From A')
     ## conveyor CT3B -> CTB
     rc_b1      = controller.attach_tag('RC B1')
     rsb_in     = controller.attach_tag('RS B In')
