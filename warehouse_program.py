@@ -142,9 +142,19 @@ def database_routine():
     #print('database routine ended')
 
 async def produce_tasks():
+    task_issued = True
     while True:
-        if rs2_out.get_value() == True:
-            controller.machines['RC1_4'].
+        if rs2_out.get_value() == False and task_issued:
+            task_to_put = asyncio.create_task(controller.machines['RC1_4'].move())
+            await controller.machines['RC1_4'].tasks.put(task_to_put)
+            task_issued = False
+        if rs3_in.get_value() == False and not task_issued:
+            task_to_put = asyncio.create_task(controller.machines['RC1_4'].transit_next())
+            task_to_put2 = asyncio.create_task(controller.machines['CT3'].accept_to('forward'))
+
+            await controller.machines['RC1_4'].tasks.put(task_to_put)
+            await controller.machines['CT3'].tasks.put(task_to_put2)
+            task_issued = False
 
         await asyncio.sleep(0.4)
         print('producer fired')
