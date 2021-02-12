@@ -427,6 +427,9 @@ if __name__ == '__main__':
     RCCa2 = controller.attach_machine('RCCa2', fio.Conveyor(rcc_a2, al_a))  # arc start
     RCa3  = controller.attach_machine('RCa3', fio.Conveyor(rc_a3, al_a))
     lRCa4 = controller.attach_machine('lRCa4', fio.Conveyor(l_rc_a4, al_a) )# arc end
+    ulRCa5 = controller.attach_machine('ulRCa5', fio.Conveyor(ul_rc_a5, rs_a_in))
+    RC_a6 = controller.attach_machine('RCa6', fio.Conveyor(rc_a6, rs_a_in))
+    RC_a8 = controller.attach_machine('RCa8', fio.Conveyor(rc_a8, rs_2a_in_a))
     RC1_4 = controller.attach_machine('RC1_4', fio.Conveyor(rc_1_4, rs3_in))
     RCb1  = controller.attach_machine('RCb1', fio.Conveyor(rc_b1, rsb_in))
     #endregion
@@ -447,6 +450,7 @@ if __name__ == '__main__':
     CT3B    = controller.attach_machine('CT3B', fio.Crossing_conveyor(ct3b_plus, ct3b_min, ct3b_left, ct3b_right, cs_3b, rs3b_out, wait_time=3.5))
     CT4     = controller.attach_machine('CT4', fio.Crossing_conveyor(ct4_plus, ct4_min, ct4_left, ct4_right, cs_4, rs4_out, wait_time=2.1))
     CT4B    = controller.attach_machine('CT4B', fio.Crossing_conveyor(ct4b_plus, ct4b_min, ct4b_left, ct4b_right, cs_4b, rs4b_out, wait_time=3.5))
+    CTA     = controller.attach_machine('CTA', fio.Crossing_conveyor(cta_plus, cta_min, cta_left, cta_right, cs_a, rs_a_out, wait_time=2.1))
     #endregion
     
         ##  CRANES
