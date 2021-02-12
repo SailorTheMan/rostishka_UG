@@ -28,7 +28,7 @@ SECRET_KEY = 'cv!go&64&11694np()to84w=-%z+(w+)a@_7n38a_ma^b4_x1@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['quoz.site', 'quoz.ddns.net']
 
 
 # Application definition
