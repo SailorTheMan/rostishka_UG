@@ -3,7 +3,7 @@ import sqlite3
 def executeStatement(statement):
     try:
         # conn = sqlite3.connect(settings.config['db_name'])
-        conn = sqlite3.connect('../../sim_data.sqlite')
+        conn = sqlite3.connect('../sim_data.sqlite')
 
     except:
         print('Connection to DB was not established')
@@ -19,4 +19,5 @@ def executeStatement(statement):
             conn.close()
 
 def get_schedule():
-    
+    statement = 'SELECT ID, manufacturer, Name, Model, "Date", "Time in", "Time out" FROM "id_factory";'
+    return executeStatement(statement)
