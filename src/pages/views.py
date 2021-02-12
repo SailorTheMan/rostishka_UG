@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from .forms import PartnerForm, CallMeForm, CompanyForm
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
+from .db_connector import get_schedule
 
 def home_view(request, *args, **kwargs):
     if request.method == 'POST':
@@ -75,7 +76,8 @@ def warehouse_view(request, *args, **kwargs):
     return render(request, "warehouse.html", {})
 
 def schedule_view(request, *args, **kwargs):
-    return render(request, "schedule.html", {})
+    schedule = get_schedule()
+    return render(request, "schedule.html", {'schedule':schedule})
 
 def stream_view(request, *args, **kwargs):
     stream_url = 'https://www.youtube.com/embed/7qXQ75fSd6s'
