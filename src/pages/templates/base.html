@@ -43,7 +43,7 @@
                   </a>
                 </li>
               {% else %}
-                <li class="nav-item"><a class="nav-link name" href="{% url 'profile' %}"><img width="35px" src="{{user.profile.image.url}}" alt=""></a></li>
+                <li class="nav-item"><a class="nav-link name" href="{% url 'profile' %}"><img class="avatar-30" width="35px" src="{{user.profile.image.url}}" alt=""></a></li>
                 <li class="nav-item"><a class="nav-link name" href="{% url 'profile' %}">{{ user.first_name }} {{ user.second_name }}</a></li>
                 <li class="nav-item"><a class="nav-link logout" href="{% url 'logout' %}">Выход</a></li>
               {% endif %}
@@ -67,7 +67,7 @@
           <div class="row">
             <div class="col">
               <div class="row d-flex flex-column">
-                <p style="font-size:28px">ООО “СТА”</p>
+                <p style="font-size:28px">ООО “ROSтишка”</p>
                 <p style="font-size: 15px;">Мы делаем бизнес современнее</p>
               </div>
             </div>

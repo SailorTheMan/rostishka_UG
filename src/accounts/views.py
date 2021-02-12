@@ -180,4 +180,4 @@ def profile_view(request):
             p_form = ProfileUpdateForm(instance=request.user.profile)
             return render(request, 'profile.html', {'user':request.user, 'u_form':u_form, 'p_form':p_form, 'email_busy':False})
     else:
-        return HttpResponse('You are not logged in')
+        return redirect('login')

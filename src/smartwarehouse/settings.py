@@ -132,10 +132,16 @@ STATIC_URL = 'pages/static/'
 MEDIA_ROOT = PurePath.joinpath(BASE_DIR, "media")
 MEDIA_URL = '/media/'
 
+f = open(PurePath.joinpath(BASE_DIR, 'smartwarehouse/mail.txt'))
+mail = []
+for line in f:
+    mail.append(line.rstrip('\n'))
+f.close()
+
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'rostishka.team@gmail.com'
-EMAIL_HOST_PASSWORD = 'Rostishka1234'
+EMAIL_HOST = mail[0]
+EMAIL_HOST_USER = mail[1]
+EMAIL_HOST_PASSWORD = mail[2]
 EMAIL_PORT = 587
 
 AUTHENTICATION_BACKENDS = ['accounts.auth_backend.EmailBackend']

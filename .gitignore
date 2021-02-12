@@ -3,3 +3,4 @@ __pycache__/FactoryController.cpython-37.pyc
 __pycache__/FactoryController.cpython-38.pyc
 *.pyc
 .venv/
+src/smartwarehouse/mail.txt

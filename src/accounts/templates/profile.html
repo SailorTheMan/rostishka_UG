@@ -5,9 +5,7 @@
   <h2 class="my-2">Личный кабинет сотрудника</h2>
   <div class="content">
     <h2 class="my-2">{{ user.first_name }} {{user.second_name}}</h2>
-    <img width="200px" src="{{user.profile.image.url}}" alt="">
-    <ul>
-    </ul>
+    <img class="avatar-200" width="200px" src="{{user.profile.image.url}}" alt="">
   </div>
 
   <form method="POST" enctype="multipart/form-data">
