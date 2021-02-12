@@ -189,7 +189,7 @@ async def consume_tasks(commands):
         #for mchne in controller.machines:
         #    mchne.tasks.get_nowait()
         #    mchne.tasks.task_done()
-        item = await commands.get()
+        item = commands.get_nowait()
         print('AAAAAAAAAAAAAAAAAAAAA')
         print(item)
         await item
@@ -200,7 +200,7 @@ async def consume_tasks(commands):
         #    await parcel.execute()
         
         await asyncio.sleep(0.2)
-        #print('consumer fired')
+        print('consumer fired')
             
 
 
