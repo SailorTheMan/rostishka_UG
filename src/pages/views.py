@@ -4,6 +4,7 @@ from .forms import PartnerForm, CallMeForm, CompanyForm
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from .db_connector import get_schedule, get_warehouse, get_report, get_database
+from accounts.models import User
 
 
 def home_view(request, *args, **kwargs):
@@ -17,14 +18,17 @@ def home_view(request, *args, **kwargs):
                 message = render_to_string('call_me_email.html',{
                     'phone':cd['phone']
                 })
-                to_email = 'vlad.los77712@gmail.com'
+                emails = User.objects.filter(is_admin=True).values_list('email')
+                to_email = []
+                for row in emails:
+                    to_email.append(row[0])
                 email = EmailMessage(
-                    mail_subject, message, to=[to_email]
+                    mail_subject, message, to=to_email
                 )
                 email.send()
-                return HttpResponse('email send')
+                return render(request, 'form_sent.html', {'success': True})
             else:
-                return HttpResponse('form was not validated')
+                return render(request, 'form_sent.html', {'success': False})
         elif 'company' in request.POST:
             form = CompanyForm(request.POST)
             if form.is_valid():
@@ -36,14 +40,17 @@ def home_view(request, *args, **kwargs):
                     'size':cd['warehouse_size'],
                     'company':cd['company'],
                 })
-                to_email = 'vlad.los77712@gmail.com'
+                emails = User.objects.filter(is_admin=True).values_list('email')
+                to_email = []
+                for row in emails:
+                    to_email.append(row[0])
                 email = EmailMessage(
-                    mail_subject, message, to=[to_email]
+                    mail_subject, message, to=to_email
                 )
                 email.send()
-                return HttpResponse('email send')
+                return render(request, 'form_sent.html', {'success': True})
             else:
-                return HttpResponse('form was not validated')
+                return render(request, 'form_sent.html', {'success': False})
     else:
         companyForm = CompanyForm()
         phoneForm = CallMeForm()
@@ -61,14 +68,17 @@ def about_view(request, *args, **kwargs):
                 'name':cd['name'],
                 'message':cd['message']
             })
-            to_email = 'vlad.los77712@gmail.com'
+            emails = User.objects.filter(is_admin=True).values_list('email')
+            to_email = []
+            for row in emails:
+                to_email.append(row[0])
             email = EmailMessage(
-                mail_subject, message, to=[to_email]
+                mail_subject, message, to=to_email
             )
             email.send()
-            return HttpResponse('email send')
+            return render(request, 'form_sent.html', {'success': True})
         else:
-            return HttpResponse('form was not validated')
+            return render(request, 'form_sent.html', {'success': False})
     else:
         return render(request, "about.html", {'form':PartnerForm()})
 
@@ -96,4 +106,8 @@ def schedule_view(request, *args, **kwargs):
 
 def stream_view(request, *args, **kwargs):
     stream_url = 'https://www.youtube.com/embed/7qXQ75fSd6s'
-    return render(request, "stream.html", {'stream_url':stream_url, 'is_admin':request.user.is_admin})
+    if not request.user.is_authenticated:
+        is_admin = False
+    else:
+        is_admin = request.user.is_admin
+    return render(request, "stream.html", {'stream_url':stream_url, 'is_admin':is_admin})
