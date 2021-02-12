@@ -1,202 +1,259 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div class="container main">
-    <p>ООО “Современные технологии автоматизации”</p>
-    <p>Автоматизированное складское помещение без использования человеческих ресурсов уже на вашем производстве</p>
-    <p>На данном сайте представлено пример того, как можно автоматизировать ваш склад и сэкономить на этом ваши деньги</p>
-    <a href=""><p>Посмотреть видео о разработке</p></a>
-</div>
+<div class="wrapper">
+    <div class="container main">
+        <p>ООО “Современные технологии автоматизации”</p>
+        <p>Автоматизированное складское помещение без использования человеческих ресурсов уже на вашем производстве</p>
+        <p>На данном сайте представлено пример того, как можно автоматизировать ваш склад и сэкономить на этом ваши деньги</p>
+        {% comment %} <a href="">Посмотреть видео о разработке</p></a> {% endcomment %}
 
-<div class="about">
-    <div class="container my-5 py-5">
-        <div class="row">
-            <div class="col">
-                <h3 class="my-3">О нас</h3>
-                <p class="my-3">Наша компания работает на рынке автоматизации с <b>2006 года.</b> 
-                    Мы автоматизировали больше <b>150</b> производственных предприятий.</p>
-                <p class="my-3">Более 60% клиентов к нам обращаются повторно с другими задачами автоматизации. 
-                    Главным нашим подразделением является автоматизация складских помещений по типу компании Amazon</p>
-                <a href="about">Узнать больше</a>
+                <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Посмотреть видео о разработке
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Видео о разработке</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="col">
-                <img src="{% static 'images/about.png' %}" width="720px" alt="">
+            <div class="modal-body text-center">
+                <video width='400px' type="video/mp4" controls src="{% static 'videos/work_video.mp4' %}"></video>
             </div>
+            </div>
+        </div>
         </div>
     </div>
-</div>
 
-<div class="workers my-5">
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <div class="row">
-                    <div class="col d-flex flex-column">
-                        <img src="{% static 'images/bad1.png' %}" width="300px" alt="">
-                        <img src="{% static 'images/bad2.png' %}" width="300px" alt="">
-                    </div>
-                    <div class="col" style="padding-top:150px">
-                        <img src="{% static 'images/bad3.png' %}" width="300px" alt="">
-                    </div>
+    <div class="about">
+        <div class="container my-5 py-5">
+
+            <form class="row row-cols-lg-auto g-3 align-items-center mb-5 first-form" method='post'>
+                {% csrf_token %}
+                <div class="mb-3 col text-center">
+                    <label for="formGroupExampleInput" class="form-label">Расположение</label>
+                    {{companyForm.location}}
+                    {% comment %} <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Москва"> {% endcomment %}
                 </div>
-            </div>
-            <div class="col">
-                <p style="font-size: 35px;">Как часто ваши работники ошибаются и тратят драгоценное время?</p>
-                <p>Мы это знаем не по наслышке. По нашим исследованиям работники на больших 
-                    складах тратят больше 35% рабочего времени в пустую. только потому что они люди. Мы предлагаем вам это исправить!</p>
-                <a href="">Свяжитесь со мной</a>
-            </div>
-        </div>
-        
-    </div>
-</div>
-
-<div class="how-it-works py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <h3>Почему вам стоит уходить в автоматизацию?</h3>
-                <p>Так как программное обеспечение уже написано и готово к внедрению, наши клиенты платят только ежемесячную подписку
-                     и  имеют возможность доработки решения под себя с нашей помощью.</p>
-            </div>
-            <div class="col"></div>
-        </div>
-        <div class="adv-1">
-            <img src="{% static 'images/adv1.png' %}" width="300px" alt="">
-        </div>
-        <div class="adv-2">
-            <img src="{% static 'images/adv2.png' %}" width="300px" alt="">
-        </div>
-        <div class="adv-3">
-            <img src="{% static 'images/adv3.png' %}" width="300px" alt="">
-        </div>
-
-        <h3 style="margin-top:400px">Как это работает?</h3>
-        <p>Ниже представлена модель работы наших складов и основные элементы разработки</p>
-
-        <div class="row">
-            <div class="col">
-                <img src="{% static 'images/how.png' %}" alt="">
-            </div>
-            <div class="col">
-                <ol>
-                    <li> Платформа доступна на любой вашей технике: от компьютера до планшета</li>
-                    <li> У вас под рукой ключевые элементы взаимодействия: 
-                        <ul>
-                            <li>Расписание отгрузки</li>
-                            <li>Расписание поступления товара</li>
-                            <li>Карта склада с обновлением онлайн</li>
-                            <li>Личный кабинет для контролирующих сотрудников</li>
-                            <li>Возможность срочной отгрузки по вашему запросу</li>
-                        </ul>
-                    </li>
-                    <li>Ваш склад изначально оптимизирован на минимальное время для загрузки и отгрузки товара</li>
-                </ol>
-            </div>
-        </div>
-        <div class="row my-5">
-            <div class="col">
-                <ol>
-                    <li>Стандартная модель склада включает в себя 4 складских ряда</li>
-                    <li>В каждом ряду находится двя ряда стеллажей работа с которыми ведется через манипулятор с лифтом</li>
-                    <li>Груз к ячейке доставляется по конвейеру</li>
-                    <li>У системы под автоматическим управлением есть два направления: на доставку до ячейки и доставку на отгрузку. 
-                        По решению администратора возможно перемещение из ячейки в ячейку</li>
-                    <li>Наши программисты разработали систему с помощью следующего программного обеспечения: Visual Studio, Factory I/O и Factory I/O SDK, 
-                        так же мы имеем возможность работы в данных проектах через TIAportal</li>
-                    <li>Данные по загруженности склада отоборажаются онлайн на платформе</li>
-                    <li>У вас есть возможность при непредвиденной ситуации быстро получить в месте отгрузки необходимый груз</li>
-                </ol>
-            </div>
-            <div class="col">
-                <img src="{% static 'images/scheme.png' %}" alt="">
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<div class="team">
-    <div class="container">
-        <div class="header text-center  ">
-            <h3>Наша команда разработки</h3>
-            <p>Вы можете обратиться к нам лично при любых вопросах</p>
-        </div>
-        <div class="cards row">
-            <div class="card col" style="width: 18rem;">
-                <img src="{% static 'images/matvey.jpg' %}" class="card-img-top" height="200px" alt="...">
-                <div class="card-body">
-                  <h5 class="card-title">Matthew</h5>
-                  <a href="t.me/panteleeff" class="">t.me/panteleeff</a>
+                <div class="mb-3 col text-center">
+                    <label for="formGroupExampleInput" class="form-label">Название организации</label>
+                    {{companyForm.company}}
+                    {% comment %} <input type="text" class="form-control" id="formGroupExampleInput" placeholder='ООО "ЭЭЭ" '> {% endcomment %}
                 </div>
+                <div class="mb-3 col text-center">
+                    <label for="formGroupExampleInput" class="form-label">Размеры склада</label>
+                    {{companyForm.warehouse_size}}
+                    {% comment %} <input type="text" class="form-control" id="formGroupExampleInput" placeholder="10 Га"> {% endcomment %}
+                </div>
+                <div class="mb-3 col text-center">
+                    <label for="formGroupExampleInput" class="form-label">Как с вами связаться</label>
+                    {{companyForm.contact}}
+                    {% comment %} <input type="text" class="form-control" id="formGroupExampleInput" placeholder="+79991234567"> {% endcomment %}
+                </div>
+
+
+            <div class="col">
+                <button type="submit" class="btn btn-primary mx-auto" name='comp'>Отправить</button>
             </div>
+            </form>
 
-            <div class="card col" style="width: 18rem;">
-                <img src="{% static 'images/vlad.jpg' %}" class="card-img-top" height="200px" alt="...">
-                <div class="card-body">
-                  <h5 class="card-title">Владос</h5>
-                  <a href="t.me/sailor_twift" class="">t.me/sailor_twift</a>
+            <div class="row">
+                <div class="col">
+                    <h3 class="my-3">О нас</h3>
+                    <p class="my-3">Наша компания работает на рынке автоматизации с <b>2006 года.</b> 
+                        Мы автоматизировали больше <b>150</b> производственных предприятий.</p>
+                    <p class="my-3">Более 60% клиентов к нам обращаются повторно с другими задачами автоматизации. 
+                        Главным нашим подразделением является автоматизация складских помещений по типу компании Amazon</p>
+                    <a href="about">Узнать больше</a>
                 </div>
-            </div>
-
-            <div class="card col" style="width: 18rem;">
-                <img src="{% static 'images/andrew.jpg' %}" class="card-img-top" height="200px" alt="...">
-                <div class="card-body">
-                  <h5 class="card-title">Дюша</h5>
-                  <a href="t.me/pestaUwU" class="">t.me/pestaUwU</a>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<div class="phrase">
-    <div class="container text-center py-5" style="width:500px">
-        <p>Задача, с которой мы обратились к вашей компании состояла в том, чтобы автоматизировать 
-            огромные складские помещения известного всем россиянам магазина одежды. Полученные результаты 
-            удивили нас всех, так как компания уменьшила затраты на логистику на 30%, а время доставки грузов на 35%</p>
-        <div class="card mb-3" style="max-width: 540px;">
-            <div class="row g-0">
-                <div class="col-md-4">
-                <img src="{% static 'images/andrew.jpg' %}" width="80px" alt="...">
-                </div>
-                <div class="col-md-8">
-                <div class="card-body">
-                    <h5 class="card-title">Andrew</h5>
-                    <p class="card-text"><small class="text">CEO</small></p>
-                </div>
+                <div class="col">
+                    <img src="{% static 'images/about.png' %}" width="720px" alt="">
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="ready py-5">
-    <div class="container">
-        <div class="mx-auto">
-        <div class="row">
-            <div class="col">
-                <h3>Готовы работать с нами?</h3>
-                <p>Если мы вас убедили или у вас остались какие-либо 
-                    вопросы оставьте нам свои контакты, мы с вами свяжемся и проконсультируем по всем вопросам.</p>
-                <div class="row">
-                    <div class="col">
-                        <input type="phone" class="form-control" placeholder="+7(999)-123-45-67" aria-label="Phone">
-                    </div>
-                    <div class="col">
-                        <button type="submit" class="btn btn-primary">Отправить</button>
+    <div class="workers my-5">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="row">
+                        <div class="col d-flex flex-column">
+                            <img src="{% static 'images/bad1.png' %}" width="300px" alt="">
+                            <img src="{% static 'images/bad2.png' %}" width="300px" alt="">
+                        </div>
+                        <div class="col" style="padding-top:150px">
+                            <img src="{% static 'images/bad3.png' %}" width="300px" alt="">
+                        </div>
                     </div>
                 </div>
-                    
+                <div class="col">
+                    <p style="font-size: 35px;">Как часто ваши работники ошибаются и тратят драгоценное время?</p>
+                    <p>Мы это знаем не по наслышке. По нашим исследованиям работники на больших 
+                        складах тратят больше 35% рабочего времени в пустую. только потому что они люди. Мы предлагаем вам это исправить!</p>
+                    <a href="{% url 'about' %}">Свяжитесь со мной</a>
+                </div>
             </div>
-            <div class="col">
-                <img src="{% static 'images/ready.png' %}" width="200px" alt="">
+            
+        </div>
+    </div>
+
+    <div class="how-it-works py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h3>Почему вам стоит уходить в автоматизацию?</h3>
+                    <p>Так как программное обеспечение уже написано и готово к внедрению, наши клиенты платят только ежемесячную подписку
+                        и  имеют возможность доработки решения под себя с нашей помощью.</p>
+                </div>
+                <div class="col"></div>
+            </div>
+            <div class="adv-1">
+                <img src="{% static 'images/adv1.png' %}" width="300px" alt="">
+            </div>
+            <div class="adv-2">
+                <img src="{% static 'images/adv2.png' %}" width="300px" alt="">
+            </div>
+            <div class="adv-3">
+                <img src="{% static 'images/adv3.png' %}" width="300px" alt="">
+            </div>
+
+            <h3 style="margin-top:400px">Как это работает?</h3>
+            <p>Ниже представлена модель работы наших складов и основные элементы разработки</p>
+
+            <div class="row">
+                <div class="col">
+                    <img src="{% static 'images/how.png' %}" alt="">
+                </div>
+                <div class="col">
+                    <ol>
+                        <li> Платформа доступна на любой вашей технике: от компьютера до планшета</li>
+                        <li> У вас под рукой ключевые элементы взаимодействия: 
+                            <ul>
+                                <li>Расписание отгрузки</li>
+                                <li>Расписание поступления товара</li>
+                                <li>Карта склада с обновлением онлайн</li>
+                                <li>Личный кабинет для контролирующих сотрудников</li>
+                                <li>Возможность срочной отгрузки по вашему запросу</li>
+                            </ul>
+                        </li>
+                        <li>Ваш склад изначально оптимизирован на минимальное время для загрузки и отгрузки товара</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="row my-5">
+                <div class="col">
+                    <ol>
+                        <li>Стандартная модель склада включает в себя 4 складских ряда</li>
+                        <li>В каждом ряду находится двя ряда стеллажей работа с которыми ведется через манипулятор с лифтом</li>
+                        <li>Груз к ячейке доставляется по конвейеру</li>
+                        <li>У системы под автоматическим управлением есть два направления: на доставку до ячейки и доставку на отгрузку. 
+                            По решению администратора возможно перемещение из ячейки в ячейку</li>
+                        <li>Наши программисты разработали систему с помощью следующего программного обеспечения: Visual Studio, Factory I/O и Factory I/O SDK, 
+                            так же мы имеем возможность работы в данных проектах через TIAportal</li>
+                        <li>Данные по загруженности склада отоборажаются онлайн на платформе</li>
+                        <li>У вас есть возможность при непредвиденной ситуации быстро получить в месте отгрузки необходимый груз</li>
+                    </ol>
+                </div>
+                <div class="col">
+                    <img src="{% static 'images/scheme.png' %}" alt="">
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="team">
+        <div class="container">
+            <div class="header text-center  ">
+                <h3>Наша команда разработки</h3>
+                <p>Вы можете обратиться к нам лично при любых вопросах</p>
+            </div>
+            <div class="cards row">
+                <div class="card col" style="width: 18rem;">
+                    <img src="{% static 'images/matvey.jpg' %}" class="card-img-top" height="200px" alt="...">
+                    <div class="card-body">
+                    <h5 class="card-title">Matthew</h5>
+                    <a href="https://t.me/panteleeff" class="">t.me/panteleeff</a>
+                    </div>
+                </div>
+
+                <div class="card col" style="width: 18rem;">
+                    <img src="{% static 'images/vlad.jpg' %}" class="card-img-top" height="200px" alt="...">
+                    <div class="card-body">
+                    <h5 class="card-title">Владос</h5>
+                    <a href="https://t.me/sailor_twift" class="">t.me/sailor_twift</a>
+                    </div>
+                </div>
+
+                <div class="card col" style="width: 18rem;">
+                    <img src="{% static 'images/andrew.jpg' %}" class="card-img-top" height="200px" alt="...">
+                    <div class="card-body">
+                    <h5 class="card-title">Дюша</h5>
+                    <a href="https://t.me/pestaUwU" class="">t.me/pestaUwU</a>
+                    </div>
+                </div>
+
             </div>
         </div>
+    </div>
+
+    <div class="phrase">
+        <div class="container text-center py-5" style="width:500px">
+            <p>Задача, с которой мы обратились к вашей компании состояла в том, чтобы автоматизировать 
+                огромные складские помещения известного всем россиянам магазина одежды. Полученные результаты 
+                удивили нас всех, так как компания уменьшила затраты на логистику на 30%, а время доставки грузов на 35%</p>
+            <div class="card mb-3" style="max-width: 540px;">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                    <img src="{% static 'images/andrew.jpg' %}" width="80px" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Andrew</h5>
+                        <p class="card-text"><small class="text">CEO</small></p>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ready py-5">
+        <div class="container">
+            <div class="mx-auto">
+            <div class="row">
+                <div class="col">
+                    <h3>Готовы работать с нами?</h3>
+                    <p>Если мы вас убедили или у вас остались какие-либо 
+                        вопросы оставьте нам свои контакты, мы с вами свяжемся и проконсультируем по всем вопросам.</p>
+                    <form method="post" class="row" id='phone'>
+                        <div class="col">
+                            {% csrf_token %}
+                            {{phoneForm.phone}}
+                            {% comment %} <input type="phone" class="form-control" placeholder="+7(999)-123-45-67" aria-label="Phone"> {% endcomment %}
+                        </div>
+                        <div class="col">
+                            <button type="submit" name='phone_sub' class="btn btn-primary">Отправить</button>
+                        </div>
+                    </form>
+                        
+                </div>
+                <div class="col">
+                    <img src="{% static 'images/ready.png' %}" width="200px" alt="">
+                </div>
+            </div>
+            </div>
         </div>
     </div>
 </div>
 
     
+{% endblock %}
+
+{% block scripts %}
 {% endblock %}

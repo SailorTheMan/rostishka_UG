@@ -1,0 +1,60 @@
+body{
+    font-family: 'Poppins', sans-serif;
+    background-color: #F6FBFF;
+}
+h1{
+    font-size: 2rem;
+    text-align: center;
+}
+.login-form .form-control{
+    border-radius: 20px;
+    border: 2px solid #6FB2E6;
+    background-color: #F3F3F3;
+}
+
+.login{
+    min-width: 200px;
+    max-width: 450px;
+}
+
+.submit-button{
+    background-color: #F3F3F3;
+    border: 2px solid #6FB2E6;
+    border-radius: 30px;
+    width: 95px;
+    height: 45px;
+    -o-transition: .5s;
+}
+
+.submit-button:hover{
+    background-color: #6FB2E6;
+}
+
+.submit-button:active{
+    background-color: #558db8;
+    border:none;
+}
+
+.reg-link{
+    color:#000;
+}
+
+.underline{
+    text-decoration: none;
+    position: relative;
+}
+
+.underline:after{
+    position: absolute;
+    content: '';
+    height: 1px;
+    bottom: 0;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    width: 100%;
+    background-color: #000;
+}
+.underline:hover:after{
+    background-color: #6FB2E6;
+}

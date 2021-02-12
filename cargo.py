@@ -2,15 +2,6 @@
 import asyncio
 import FactoryController as fio
 
-class Storekeeper:
-    def __init__(self, controller):
-        self.active_cargo = {}   # dictionary for all cargos en route | [rfid]: Cargo()
-        self.controller = controller
-
-    def add_cargo(self):
-        new_cargo = Cargo()
-        return 
-
 
 
 class Cargo:
@@ -36,3 +27,12 @@ class Cargo:
         com_qu.get()
         if cntrl.machines['CT1'].tasks.empty():
             pass
+
+class Storekeeper:
+    def __init__(self, controller):
+        self.active_cargo = {}   # dictionary for all cargos en route | [rfid]: Cargo()
+        self.controller = controller
+
+    def add_cargo(self, new_cargo: Cargo):
+        self.active_cargo[new_cargo.rf_id] = new_cargo
+

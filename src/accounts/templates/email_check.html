@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    </style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo my-5">
+                <img src="{% static 'images/logo.svg' %}" width="55px" alt="">
+            </div>
+        </header>
+        <div class="content text-center">
+            {% if is_activated %}
+                <p>Ваша учетная запись успешно активирована.</p>
+                    <a class="nav-link btn btn-primary btn-sm login-btn p-2" href="{% url 'home' %}">
+                    <div style="color:#fff;">
+                      <p class="fst-row">ГЛАВНАЯ</p>
+                    </div>
+                  </a>
+            {% elif is_link_invalid %}
+                <p>Ссылка неактивна.</p>
+            {% else %}
+                <p>Регистрация успешно завершена.</p>
+                <p>На вашу почту было выслано письмо с ссылкой для подтверждения аккаунта.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
