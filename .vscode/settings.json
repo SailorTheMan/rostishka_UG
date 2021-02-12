@@ -1,4 +1,0 @@
-{
-    "git.ignoreLimitWarning": true,
-    "emmet.includeLanguages": {"django-html": "html"},
-}
