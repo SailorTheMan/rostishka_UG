@@ -33,11 +33,12 @@ class Cargo:
         if cntrl.machines['CT1'].tasks.empty():
             pass
     '''
-    async def execute(self):
-        if self.crane == 1:
+    async def execute(self, crane):
+        crane = 2
+        if crane == 1:
             pass
         
-        if self.crane == 2:
+        if crane == 2:
             ctrl_m = self.controller.machines
             await asyncio.gather(ctrl_m['RC1'].transit_next(), ctrl_m['CT1'].accept_to('forward'))
             await ctrl_m['CT1'].move_to('forward')

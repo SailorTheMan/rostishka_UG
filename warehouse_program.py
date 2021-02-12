@@ -58,7 +58,7 @@ def get_RFID():
         return None 
 
 
-async def spawn__item(item):
+async def spawn__item(item, commands ):
     # TODO добавить условие ожидание ошибки 1 (ожидать пока коробка уедет из зоны действия рфид датчика)
     global LAST_RFID
     global WAIT_ITEM_RFID
@@ -77,7 +77,7 @@ async def spawn__item(item):
         WAIT_ITEM_RFID = True
 
         task1 = asyncio.create_task(controller.machines['RC1'].move())
-        await controller.machines['RC1'].tasks.put(task1)
+        #await controller.machines['RC1'].tasks.put(task1)
     
 
     if RFID_value is not None:
@@ -97,7 +97,8 @@ async def spawn__item(item):
 
         new_cargo = cargo.Cargo(controller, RFID_value, destination=dist)
         storekeeper.add_cargo(new_cargo)
-
+        #task = asyncio.create_task()
+        await commands.put(new_cargo.execute())
 
         ######################################################
         WAIT_ITEM_RFID = False
@@ -134,8 +135,9 @@ async def wtf():
     await asyncio.gather(pallet2(), pallet3())
 ### WOW 
 
-async def database_routine():
+async def database_routine(commands):
     # проверяем расписание грузов
+    
     print('database routine started')
     
 
@@ -145,7 +147,7 @@ async def database_routine():
     ## check pending DB entries
     item = find_pending_items(conn)
     if (item is not None):
-        await spawn__item(item)
+        await spawn__item(item, commands)
         item = None
 
     
@@ -153,20 +155,12 @@ async def database_routine():
 
 
 
-async def fuck():
-
-    tsk1 = asyncio.create_task(controller.machines['RC1_4'].transit_next())
-    tsk2 = asyncio.create_task(controller.machines['CT3'].accept_to('forward') )
-    await tsk1
-    await tsk2
-
-
-async def produce_tasks():
+async def produce_tasks(commands):
     task_issued = True
     cargo_spawn = True
     while True:
             
-        await database_routine()
+        await database_routine(commands)
         '''
         if rs2_out.get_value() == False and task_issued:
             task_to_put = asyncio.create_task(controller.machines['RC1_4'].move())
@@ -183,22 +177,30 @@ async def produce_tasks():
         #     await controller.machines['CT3'].tasks.put(task_to_put2)
             # task_issued = False
         '''
+
+
         await asyncio.sleep(0.4)
         print('producer fired')
 
         
     
-async def consume_tasks():
+async def consume_tasks(commands):
     while True:
         #for mchne in controller.machines:
         #    mchne.tasks.get_nowait()
         #    mchne.tasks.task_done()
-        
-        for parcel in storekeeper.active_cargo():
-            await parcel.execute()
+        item = await commands.get()
+        print('AAAAAAAAAAAAAAAAAAAAA')
+        print(item)
+        await item
+        print('BBBBBBBBB')
+        print(len(storekeeper.active_cargo))
+        #for parcel in storekeeper.active_cargo():
+        #    print(parcel.rfid)
+        #    await parcel.execute()
         
         await asyncio.sleep(0.2)
-        print('consumer fired')
+        #print('consumer fired')
             
 
 
@@ -206,10 +208,10 @@ async def consume_tasks():
 async def za_loopu():
     
     start = time.perf_counter()
-
+    commands = asyncio.Queue()
     
-    produce = asyncio.create_task(produce_tasks())
-    consume = asyncio.create_task(consume_tasks())
+    produce = asyncio.create_task(produce_tasks(commands))
+    consume = asyncio.create_task(consume_tasks(commands))
 
     #asyncio.gather(produce_tasks(), )
     await produce
