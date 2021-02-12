@@ -129,26 +129,60 @@ def database_routine():
         item = None
 
     controller.push_tags()
-    print('database routine ended')
+    #print('database routine ended')
 
+async def produce_tasks():
+    task_issued = True
+    while True:
+        if rs2_out.get_value() == False and task_issued:
+            task_to_put = asyncio.create_task(controller.machines['RC1_4'].move())
+            await controller.machines['RC1_4'].tasks.put(task_to_put)
+            task_issued = False
+        if rs3_in.get_value() == False and not task_issued:
+            task_to_put = asyncio.create_task(controller.machines['RC1_4'].transit_next())
+            task_to_put2 = asyncio.create_task(controller.machines['CT3'].accept_to('forward'))
 
+            await controller.machines['RC1_4'].tasks.put(task_to_put)
+            await controller.machines['CT3'].tasks.put(task_to_put2)
+            task_issued = False
 
-async def task_control():
-    while(True):
-        start = time.perf_counter()
-
-        database_routine()
-        # DEBUG
-        spawn = True
-        if spawn:
-            Item = cargo.Cargo(controller)
-            spawn=False
-
-
+        await asyncio.sleep(0.4)
+        print('producer fired')
 
         
-        elapsed = time.perf_counter() - start
-        print(elapsed)
+    
+
+
+async def consume_tasks():
+    while True:
+        for mchne in controller.machines:
+            await mchne.tasks.get()
+        
+        
+        await asyncio.sleep(0.2)
+        print('consumer fired')
+            
+
+
+
+async def za_loopu():
+    
+    start = time.perf_counter()
+
+    
+    produce = asyncio.create_task(produce_tasks())
+    consume = asyncio.create_task(consume_tasks())
+
+    #asyncio.gather(produce_tasks(), )
+    await produce
+    await consume
+
+
+
+
+    
+    elapsed = time.perf_counter() - start
+    print('loop time: ' + elapsed)
 
     
 
@@ -348,9 +382,10 @@ if __name__ == '__main__':
     conn.commit()
     conn.close()
 
+    asyncio.run(za_loopu())
 
     #while(True):
-    loop = asyncio.get_event_loop()
+    '''loop = asyncio.get_event_loop()
     try:
         asyncio.ensure_future(task_control())
         loop.run_forever()
@@ -358,10 +393,8 @@ if __name__ == '__main__':
         pass
     finally:
         print("Closing Loop")
-        loop.close()
+        loop.close()'''
     #asyncio.run( task_control() ) # _forever
-    if False:
-        async_loop.stop()
 
     #asyncio.run(loop())
         #pass
