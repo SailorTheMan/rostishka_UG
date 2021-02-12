@@ -1,17 +1,20 @@
 #!/.venv/Scripts/python.exe
 
-import requests
+import asyncio
+import datetime
 import json
 import sqlite3
+import time
 from sqlite3 import Error
-import time, datetime
-import asyncio
 
+import requests
+
+import cargo
 #from spawn_item import select_item, time_to_sec, find_pending_items, get_RFID, spawn__item
 import FactoryController as fio
-import cargo
 
-SIM_ADDRESS = 'http://loopback:7410'    #my local VM address
+        # loopback
+SIM_ADDRESS = 'http://192.168.220.129:7410'    #my local VM address
 
 #region spawn_item functions
 
@@ -40,7 +43,7 @@ def find_pending_items(conn):
         
         if (cur_time > time_to_sec(row[4]) and cur_time < time_to_sec(row[5])):
             if (not(row[8])):
-                print(row)
+                #print(row)
                 return row
     return None
 
@@ -49,10 +52,10 @@ def find_pending_items_from(conn):
     for row in conn.execute('SELECT * FROM id_factory ORDER BY "Time out"'):
         cur_time = time.time() - START_TIME
         # if time to be in sim but not in sim
-        print(cur_time)
+        #print(cur_time)
         if cur_time > time_to_sec(row[5]):
             if ((row[8])):
-                print(row)
+                #print(row)
                 return row
     return None
 
@@ -112,8 +115,6 @@ def spawn__item(item):
         new_cargo = cargo.Cargo(controller, RFID_value, destination=dist)
         storekepper.add_cargo(new_cargo)
 
-
-
         ######################################################
         WAIT_ITEM_RFID = False
         # rc_input.value = 'false'
@@ -139,15 +140,20 @@ async def pallet2():
     await CT1A.move_to('right')
     await Arc1.move()
 
-async def pallet3():
+async def pallet3(time):
+    await asyncio.sleep(time)
+
+    em1_base.set_value(2)
+    em1_emit.set_value("true")
+    await asyncio.sleep(0.1)
+    em1_emit.set_value("false")
+
+    print('waited {}'.format(time))
     await asyncio.gather(CT2.move_to('forward'), RC1_4.accept())
     await asyncio.gather(RC1_4.transit_next(), CT3.accept_to('forward'))
     await asyncio.gather(CT3.move_to('left'), CT3B.accept_to('right'))
     await asyncio.gather(CT3B.move_to('right'), RCb1.accept())
 
-async def wtf():
-    await asyncio.gather(pallet2(), pallet3())
-### WOW 
 
 async def database_routine():
     # проверяем расписание грузов
@@ -282,18 +288,6 @@ async def produce_tasks():
                     await from_crane_a(value)
                     LAST_CARGO = key
             storekepper.active_cargo.pop(LAST_CARGO)
-        
-
-        # if rs2_out.get_value() == False and task_issued:
-        #     task_to_put = asyncio.create_task(controller.machines['RC1_4'].move())
-        #     await controller.machines['RC1_4'].tasks.put(task_to_put)
-        #     task_issued = False
-        # if rs3_in.get_value() == False and not task_issued:
-        #     task_to_put = asyncio.create_task(controller.machines['RC1_4'].transit_next())
-        #     task_to_put2 = asyncio.create_task(controller.machines['CT3'].accept_to('forward'))
-
-            # await controller.machines['RC1_4'].tasks.put(task_to_put)
-        #     await controller.machines['CT3'].tasks.put(task_to_put2)
             # task_issued = False
 
         await asyncio.sleep(0.4)
@@ -317,8 +311,9 @@ async def consume_tasks():
 
 async def za_loopu():
     
-    start = time.perf_counter()
-
+    #start = time.perf_counter()
+    #times = [0, 10, 25, 40]
+    #await asyncio.gather(*(pallet3(i) for i in times))
     
     produce = asyncio.create_task(produce_tasks())
     # consume = asyncio.create_task(consume_tasks())
@@ -613,10 +608,6 @@ if __name__ == '__main__':
     # controller.sim_start()     doesnt work as expected
     controller.fetch_tags()
 
-
-    #loop = asyncio.get_event_loop()  
-    #asyncio.ensure_future(rc10.move())
-    #asyncio.ensure_future(rc1.move())
     #  Перед запуском программы надо скзать базе данных что в симуляции ничего нет
     conn = sqlite3.connect('sim_data.sqlite')
     cursor = conn.cursor()
@@ -629,20 +620,4 @@ if __name__ == '__main__':
     conn.close()
 
     asyncio.run(za_loopu())
-
-    #while(True):
-    '''loop = asyncio.get_event_loop()
-    try:
-        asyncio.ensure_future(task_control())
-        loop.run_forever()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        print("Closing Loop")
-        loop.close()'''
-    #asyncio.run( task_control() ) # _forever
-
-    #asyncio.run(loop())
-        #pass
-        
     
