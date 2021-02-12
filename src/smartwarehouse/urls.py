@@ -6,7 +6,8 @@ from pages.views import (
     about_view,
     warehouse_view,
     stream_view,
-    schedule_view
+    schedule_view,
+    downloadcsv_view
 )
 
 from django.conf.urls import url
@@ -19,6 +20,7 @@ urlpatterns = [
     path('stream', stream_view, name='stream'),
     path('warehouse/', warehouse_view, name='warehouse'), 
     path('schedule/', schedule_view, name='schedule'), 
-     url(r'^account/', include('accounts.urls')),
+    url(r'^account/', include('accounts.urls')),
+    path('csv/', downloadcsv_view, name="downloadcsv"),
 
 ]
