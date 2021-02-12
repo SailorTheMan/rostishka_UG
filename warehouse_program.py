@@ -11,7 +11,7 @@ import asyncio
 import FactoryController as fio
 import cargo
 
-SIM_ADDRESS = 'http://loopback:7410'    #my local VM address
+SIM_ADDRESS = 'http://192.168.220.129:7410'    #my local VM address
 
 #region spawn_item functions
 
@@ -58,7 +58,7 @@ def get_RFID():
         return None 
 
 
-def spawn__item(item):
+async def spawn__item(item):
     # TODO добавить условие ожидание ошибки 1 (ожидать пока коробка уедет из зоны действия рфид датчика)
     global LAST_RFID
     global WAIT_ITEM_RFID
@@ -75,7 +75,9 @@ def spawn__item(item):
         em1_part.set_value(8192)
         em1_emit.set_value("true")
         WAIT_ITEM_RFID = True
-        rc_input.set_value('true')
+
+        task1 = asyncio.create_task(controller.machines['RC1'].move())
+        await controller.machines['RC1'].tasks.put(task1)
     
 
     if RFID_value is not None:
@@ -94,8 +96,7 @@ def spawn__item(item):
         ##              CREATE NEW CARGO                     ##
 
         new_cargo = cargo.Cargo(controller, RFID_value, destination=dist)
-        storekepper.add_cargo(new_cargo)
-
+        storekeeper.add_cargo(new_cargo)
 
 
         ######################################################
@@ -144,7 +145,7 @@ async def database_routine():
     ## check pending DB entries
     item = find_pending_items(conn)
     if (item is not None):
-        spawn__item(item)
+        await spawn__item(item)
         item = None
 
     
@@ -154,10 +155,6 @@ async def produce_tasks():
     task_issued = True
     cargo_spawn = True
     while True:
-        if cargo_spawn:
-            new_cargo = cargo.Cargo(controller)
-            await new_cargo.plan_route(1)
-            pass
             
         await database_routine()
 
@@ -223,7 +220,7 @@ async def za_loopu():
 if __name__ == '__main__':
     controller = fio.FIO_Controller(SIM_ADDRESS)
 
-    storekepper = cargo.Storekeeper(controller)
+    storekeeper = cargo.Storekeeper(controller)
 
     #region ####        DECLARATIONS      ####
     #region ###       TAG declaration      ###
