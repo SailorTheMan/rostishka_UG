@@ -6,6 +6,8 @@ ROSтишка тим для НТИ УГ
 
 Веб-интерфейс + скрипты управляющие симуляцией.
 
+Ссылка на работающий вариант http://quoz.site/
+
 ## Порядок установки:
 
 * ```git clone https://github.com/SailorTheMan/rostishka_UG.git ```
