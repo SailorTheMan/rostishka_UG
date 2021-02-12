@@ -19,6 +19,7 @@ START_TIME = time.time()
 WAIT_ITEM_RFID = False
 LAST_RFID = None
 FREE_CELL = []
+LINE_A_BUSY = False
 for i in range(216): FREE_CELL.append(i+1)
 
 
@@ -71,8 +72,8 @@ def spawn__item(item):
     if LAST_RFID == RFID_value:
         RFID_value = None
 
-    if (not(WAIT_ITEM_RFID) and rfid_stat.value == 1):
-        em1_part.set_value(8192)
+    if (not(WAIT_ITEM_RFID) and rfid_stat.value == 1 and not(LINE_A_BUSY)):
+        em1_base.set_value(2)
         em1_emit.set_value("true")
         WAIT_ITEM_RFID = True
         rc_input.set_value('true')
@@ -86,6 +87,8 @@ def spawn__item(item):
         conn.commit()
         dist = FREE_CELL.pop(0)
         cursor.execute("UPDATE id_factory SET cell=? WHERE ID=?;", (dist,item[2], ))
+        conn.commit()
+        cursor.execute("UPDATE id_factory SET en_route=1 WHERE ID=?;", (item[2], ))
         conn.commit()
         # поидее тут надо создавать объект карго и возвращать его?
 
@@ -150,16 +153,55 @@ async def database_routine():
     
     #print('database routine ended')
 
+
+async def to_crane_a(cur_cargo):
+    conn = sqlite3.connect('sim_data.sqlite')
+    cursor = conn.cursor()    
+    LINE_A_BUSY = True
+    ct1_plus.set_value(True)
+    while (not(cs_1.get_value())): await asyncio.sleep(0.1)
+    await asyncio.sleep(0.2)
+    ct1_plus.set_value(False)
+    ct1_left.set_value(True)
+    ct1a_right.set_value(True)
+    while (rs1a_out.get_value()): await asyncio.sleep(0.1)
+    ct1_left.set_value(False)
+    rc_a1.set_value(True)
+    rcc_a2.set_value(True)
+    rc_a3.set_value(True)
+    l_rc_a4.set_value(True)
+    while (al_a.get_value()): await asyncio.sleep(0.1)
+    rc_a1.set_value(False)
+    rcc_a2.set_value(False)
+    rc_a3.set_value(False)
+    l_rc_a4.set_value(False)
+    await Crane_A.to_shelf(cur_cargo.destination)
+    cur_cargo.current_position = 'en cell'
+    cursor.execute("UPDATE id_factory SET en_route=0 WHERE RFID_ID=?;", (cur_cargo.rf_id, ))
+    conn.commit()
+    conn.close()
+    LINE_A_BUSY = False
+
+
+
 async def produce_tasks():
     task_issued = True
     while True:
-            
+        
         await database_routine()
+        if len(storekepper.active_cargo) != 0:
 
-        if rs2_out.get_value() == False and task_issued:
-            task_to_put = asyncio.create_task(controller.machines['RC1_4'].move())
-            await controller.machines['RC1_4'].tasks.put(task_to_put)
-            task_issued = False
+            for cur_cargo in storekepper.active_cargo.values():    
+                if cur_cargo.current_position == 'en route':
+                    conn.close()
+                    if not(rs1_in.get_value()):
+                        await to_crane_a(cur_cargo)
+                    
+
+        # if rs2_out.get_value() == False and task_issued:
+        #     task_to_put = asyncio.create_task(controller.machines['RC1_4'].move())
+        #     await controller.machines['RC1_4'].tasks.put(task_to_put)
+        #     task_issued = False
         # if rs3_in.get_value() == False and not task_issued:
         #     task_to_put = asyncio.create_task(controller.machines['RC1_4'].transit_next())
         #     task_to_put2 = asyncio.create_task(controller.machines['CT3'].accept_to('forward'))
@@ -193,11 +235,11 @@ async def za_loopu():
 
     
     produce = asyncio.create_task(produce_tasks())
-    consume = asyncio.create_task(consume_tasks())
+    # consume = asyncio.create_task(consume_tasks())
 
     #asyncio.gather(produce_tasks(), )
     await produce
-    await consume
+    # await consume
 
 
 
@@ -223,7 +265,9 @@ if __name__ == '__main__':
     #region ####        DECLARATIONS      ####
     #region ###       TAG declaration      ###
     print('Tag declaration')
+    
     em1_part = controller.attach_tag('Emitter 1 (Part)')
+    em1_base = controller.attach_tag('Emitter 1 (Base)')
     em1_emit = controller.attach_tag('Emitter 1 (Emit)')
     ## linear conveyor spawn 
     rc_input =  controller.attach_tag('RC (4m) 1.1')
