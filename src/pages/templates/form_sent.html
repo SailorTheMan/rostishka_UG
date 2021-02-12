@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+    {% if success %}
+        <p class='text-center'>Форма успешно отправлена. С вами свяжутся в ближайшее время.</p>
+    {% else %}
+        <p class='text-center'>Кажется, форма была заполнена неверно. Попробуйте снова.</p>
+    {% endif %}
+    </div>
+{% endblock content %}

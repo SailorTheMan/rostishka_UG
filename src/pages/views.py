@@ -26,9 +26,9 @@ def home_view(request, *args, **kwargs):
                     mail_subject, message, to=to_email
                 )
                 email.send()
-                return HttpResponse('email send')
+                return render(request, 'form_sent.html', {'success': True})
             else:
-                return HttpResponse('form was not validated')
+                return render(request, 'form_sent.html', {'success': False})
         elif 'company' in request.POST:
             form = CompanyForm(request.POST)
             if form.is_valid():
@@ -48,9 +48,9 @@ def home_view(request, *args, **kwargs):
                     mail_subject, message, to=to_email
                 )
                 email.send()
-                return HttpResponse('email send')
+                return render(request, 'form_sent.html', {'success': True})
             else:
-                return HttpResponse('form was not validated')
+                return render(request, 'form_sent.html', {'success': False})
     else:
         companyForm = CompanyForm()
         phoneForm = CallMeForm()
@@ -76,9 +76,9 @@ def about_view(request, *args, **kwargs):
                 mail_subject, message, to=to_email
             )
             email.send()
-            return HttpResponse('email send')
+            return render(request, 'form_sent.html', {'success': True})
         else:
-            return HttpResponse('form was not validated')
+            return render(request, 'form_sent.html', {'success': False})
     else:
         return render(request, "about.html", {'form':PartnerForm()})
 
