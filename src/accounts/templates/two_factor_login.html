@@ -16,19 +16,21 @@
     <div class="container">
         <header>
             <div class="logo my-5">
-            <a class="nav-link active" aria-current="page" href="/"><img src="{% static 'images/logo.svg' %}" width="55px" alt=""></a>
-                
+                <a class="nav-link active" aria-current="page" href="/"><img src="{% static 'images/logo.svg' %}" width="55px" alt=""></a>
             </div>
         </header>
         <div class="login mx-auto mt-5">
             <h1>ВХОД</h1>
-            <form class="login-form" action="." method="post">
-            <p class='text-center'>Вам на почту был выслан код для авторизации.</br>Введите его в поле ниже.</p>
+            {% if wrong_code %}
+                <p class='text-center'>Неверный код</p>
+            {% endif %}
+            <form class="" action="." method="post">
+                <p class='text-center'>Вам на почту был выслан код для авторизации.</br>Введите его в поле ниже.</p>
                 {% csrf_token %}
                 {{form.code}}
                 <div class="row">
                     <div class="col text-end">
-                        <p><input class='submit-button' type="submit" value="&#8594;"></p>
+                        <p><input name='two_factor' class='submit-button' type="submit" value="&#8594;"></p>
                     </div>
                 </div>
             </form>

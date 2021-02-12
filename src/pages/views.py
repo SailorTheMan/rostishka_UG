@@ -9,7 +9,6 @@ from accounts.models import User
 
 def home_view(request, *args, **kwargs):
     if request.method == 'POST':
-        print(request.POST)
         if 'phone_sub' in request.POST:
             form = CallMeForm(request.POST)
             if form.is_valid():
