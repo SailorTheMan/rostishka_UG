@@ -11,7 +11,7 @@ import asyncio
 import FactoryController as fio
 import cargo
 
-SIM_ADDRESS = 'http://loopback:7410'    #my local VM address
+SIM_ADDRESS = 'http://192.168.220.129:7410'    #my local VM address
 
 #region spawn_item functions
 
@@ -71,7 +71,7 @@ def get_RFID():
         return None 
 
 
-def spawn__item(item):
+async def spawn__item(item, commands ):
     # TODO добавить условие ожидание ошибки 1 (ожидать пока коробка уедет из зоны действия рфид датчика)
     global LAST_RFID
     global WAIT_ITEM_RFID
@@ -89,7 +89,9 @@ def spawn__item(item):
         em1_base.set_value(2)
         em1_emit.set_value("true")
         WAIT_ITEM_RFID = True
-        rc_input.set_value('true')
+
+        task1 = asyncio.create_task(controller.machines['RC1'].move())
+        #await controller.machines['RC1'].tasks.put(task1)
     
 
     if RFID_value is not None:
@@ -110,9 +112,9 @@ def spawn__item(item):
         ##              CREATE NEW CARGO                     ##
 
         new_cargo = cargo.Cargo(controller, RFID_value, destination=dist)
-        storekepper.add_cargo(new_cargo)
-
-
+        storekeeper.add_cargo(new_cargo)
+        #task = asyncio.create_task()
+        await commands.put(new_cargo.execute())
 
         ######################################################
         WAIT_ITEM_RFID = False
@@ -149,8 +151,9 @@ async def wtf():
     await asyncio.gather(pallet2(), pallet3())
 ### WOW 
 
-async def database_routine():
+async def database_routine(commands):
     # проверяем расписание грузов
+    
     print('database routine started')
     
 
@@ -160,7 +163,7 @@ async def database_routine():
     ## check pending DB entries
     item = find_pending_items(conn)
     if (item is not None):
-        spawn__item(item)
+        await spawn__item(item, commands)
         item = None
 
     
@@ -267,12 +270,13 @@ async def from_crane_a(cur_cargo):
 async def produce_tasks():
     global LAST_CARGO
     task_issued = True
+    cargo_spawn = True
     while True:
         
         await database_routine()
-        if len(storekepper.active_cargo) != 0:
+        if len(storekeeper.active_cargo) != 0:
 
-            for cur_cargo in storekepper.active_cargo.values():    
+            for cur_cargo in storekeeper.active_cargo.values():    
                 if cur_cargo.current_position == 'en route':
                     conn.close()
                     if not(rs1_in.get_value()):
@@ -280,11 +284,11 @@ async def produce_tasks():
                     
         item = await database_routine_from()
         if item is not None:
-            for key, value in storekepper.active_cargo.items(): 
+            for key, value in storekeeper.active_cargo.items(): 
                 if key == item[7]:
                     await from_crane_a(value)
                     LAST_CARGO = key
-            storekepper.active_cargo.pop(LAST_CARGO)
+            storekeeper.active_cargo.pop(LAST_CARGO)
         
 
         # if rs2_out.get_value() == False and task_issued:
@@ -298,19 +302,28 @@ async def produce_tasks():
             # await controller.machines['RC1_4'].tasks.put(task_to_put)
         #     await controller.machines['CT3'].tasks.put(task_to_put2)
             # task_issued = False
+        
+
 
         await asyncio.sleep(0.4)
         print('producer fired')
 
         
     
-
-
-async def consume_tasks():
+async def consume_tasks(commands):
     while True:
-        for mchne in controller.machines:
-            await mchne.tasks.get()
-        
+        #for mchne in controller.machines:
+        #    mchne.tasks.get_nowait()
+        #    mchne.tasks.task_done()
+        item = commands.get_nowait()
+        print('AAAAAAAAAAAAAAAAAAAAA')
+        print(item)
+        await item
+        print('BBBBBBBBB')
+        print(len(storekeeper.active_cargo))
+        #for parcel in storekeeper.active_cargo():
+        #    print(parcel.rfid)
+        #    await parcel.execute()
         
         await asyncio.sleep(0.2)
         print('consumer fired')
@@ -321,18 +334,14 @@ async def consume_tasks():
 async def za_loopu():
     
     start = time.perf_counter()
-
+    commands = asyncio.Queue()
     
-    produce = asyncio.create_task(produce_tasks())
-    # consume = asyncio.create_task(consume_tasks())
+    produce = asyncio.create_task(produce_tasks(commands))
+    consume = asyncio.create_task(consume_tasks(commands))
 
     #asyncio.gather(produce_tasks(), )
     await produce
-    # await consume
-
-
-
-
+    await consume
     
     elapsed = time.perf_counter() - start
     print('loop time: ' + elapsed)
@@ -349,7 +358,7 @@ async def za_loopu():
 if __name__ == '__main__':
     controller = fio.FIO_Controller(SIM_ADDRESS)
 
-    storekepper = cargo.Storekeeper(controller)
+    storekeeper = cargo.Storekeeper(controller)
 
     #region ####        DECLARATIONS      ####
     #region ###       TAG declaration      ###
@@ -584,6 +593,12 @@ if __name__ == '__main__':
     CT4     = controller.attach_machine('CT4', fio.Crossing_conveyor(ct4_plus, ct4_min, ct4_left, ct4_right, cs_4, rs4_out, wait_time=2.1))
     CT4B    = controller.attach_machine('CT4B', fio.Crossing_conveyor(ct4b_plus, ct4b_min, ct4b_left, ct4b_right, cs_4b, rs4b_out, wait_time=3.5))
     CTA     = controller.attach_machine('CTA', fio.Crossing_conveyor(cta_plus, cta_min, cta_left, cta_right, cs_a, rs_a_out, wait_time=2.1))
+    #endregion
+
+
+    #region JUNCTIONS
+    JN1     = controller.attach_machine('JN1', fio.Junction(CT1, CT1A))
+
     #endregion
     
         ##  CRANES
