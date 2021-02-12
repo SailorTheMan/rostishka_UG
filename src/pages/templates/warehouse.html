@@ -32,7 +32,7 @@
             <tr>
               <th scope="row">{{forloop.counter}}</th>
               {% for cell in row %}
-                <td class='{% if not cell.empty %} busy {% else %} empty {% endif %}' data-bs-toggle="modal" data-bs-target="#cellModel{{ cell.cell_id }}"></td>
+                <td class='{% if not cell.empty %} {% if cell.en_route %} en_route {% endif %} busy {% else %} empty {% endif %}' data-bs-toggle="modal" data-bs-target="#cellModel{{ cell.cell_id }}"></td>
 
                 <div class="modal fade" id="cellModel{{cell.cell_id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                   <div class="modal-dialog">
@@ -50,6 +50,7 @@
                               <li class="list-group-item">Название: {{cell.name}}</li>
                               <li class="list-group-item">Модель: {{cell.model}}</li>
                               <li class="list-group-item">RFID: {{cell.RFID_ID}}</li>
+                              <li class="list-group-item">Статус: {% if cell.en_route %}В пути {% else %} Прибыла{% endif %}</li>
                             </ul>
                             </div>
                           {% else %}
@@ -102,6 +103,7 @@
                           <th scope="col">Модель</th>
                           <th scope="col">RFID</th>
                           <th scope="col">Ячейка</th>
+                          <th scope="col">В пути</th>
                           </tr>
                       </thead>
                       <tbody>
@@ -113,6 +115,7 @@
                           <td>{{row.3}}</td>
                           <td>{{row.4}}</td>
                           <td>{{row.5}}</td>
+                          <td>{{row.6}}</td>
                           </tr>
                       {% endfor %}
                       </tbody>

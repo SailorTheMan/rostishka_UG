@@ -22,6 +22,14 @@
         </header>
         <div class="login mx-auto mt-5">
             <h1>ВХОД</h1>
+            {% if disabled %}
+                <p class='text-center'>Ваш аккаунт не был активирован</p>
+            {% elif not_validated %}
+                <p class='text-center'>Такая комбинация логина и пароля не найдена.... Попробуйте заново</p>
+                 <div class="col">
+                        <a class='reg-link underline' href="{% url 'login' %}">Вернуться ко входу</a>
+                </div>
+            {% else %}
             <form class="login-form" action="." method="post">
                 {% csrf_token %}
                 {{form.email}}
@@ -35,6 +43,7 @@
                     </div>
                 </div>
             </form>
+            {% endif %}
         </div>
     </div>
 </body>

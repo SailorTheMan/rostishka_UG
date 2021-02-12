@@ -5,7 +5,7 @@ def get_report():
     filename = 'pages/reports/report.csv'
     inpsql3 = sqlite3.connect('../sim_data.sqlite')
     sql3_cursor = inpsql3.cursor()
-    sql3_cursor.execute('SELECT ID, manufacturer, Name, Model, cell, RFID_ID FROM "id_factory" WHERE cell <> 0')
+    sql3_cursor.execute('SELECT ID, manufacturer, Name, Model, cell, RFID_ID, en_route FROM "id_factory" WHERE cell <> 0')
     with open(filename,'w', encoding='utf-8') as out_csv_file:
         csv_out = csv.writer(out_csv_file)
         # write header                        
@@ -41,7 +41,7 @@ def get_schedule():
 
 
 def create_cell_dict(row):
-    return {'empty': False, 'id':row[0], 'manuf':row[1], 'name':row[2], 'model':row[3], 'cell_id':row[4], 'RFID_ID':row[5]}
+    return {'empty': False, 'id':row[0], 'manuf':row[1], 'name':row[2], 'model':row[3], 'cell_id':row[4], 'RFID_ID':row[5], 'en_route':bool(row[6])}
 
 
 def get_warehouse():
@@ -51,7 +51,7 @@ def get_warehouse():
     warehouse_3 = [[{'cell_id': j * 9 + i + 109, 'empty':True} for i in range(9)] for j in range(6)]
     warehouse_4 = [[{'cell_id': j * 9 + i + 163, 'empty':True} for i in range(9)] for j in range(6)]
 
-    statement = 'SELECT ID, manufacturer, Name, Model, cell, RFID_ID FROM "id_factory" WHERE cell <> 0;'
+    statement = 'SELECT ID, manufacturer, Name, Model, cell, RFID_ID, en_route FROM "id_factory" WHERE cell <> 0;'
     db = executeStatement(statement)
     empty_count = 216 - len(db)
     for row in db:
@@ -77,7 +77,7 @@ def get_warehouse():
     return (empty_count, (warehouse_1, warehouse_2, warehouse_3, warehouse_4))
 
 def get_database():
-    statement = 'SELECT ID, manufacturer, Name, Model, RFID_ID, cell FROM "id_factory" WHERE cell <> 0;'
+    statement = 'SELECT ID, manufacturer, Name, Model, RFID_ID, cell, en_route FROM "id_factory" WHERE cell <> 0;'
     db = executeStatement(statement)
     statement = 'SELECT COUNT(DISTINCT model) FROM id_factory WHERE cell <> 0'
     model_count = executeStatement(statement)

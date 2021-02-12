@@ -33,4 +33,10 @@ class LoginForm(forms.Form):
         }))
 
 class TwoFactorForm(forms.Form):
-    code = forms.CharField()
+    code = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class':'form-control mb-2',
+            'placeholder':'0000000000',
+            'pattern':"^[0-9]{10}$"
+        }
+    ))

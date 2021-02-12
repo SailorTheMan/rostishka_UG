@@ -6,7 +6,7 @@ h1{
     font-size: 2rem;
     text-align: center;
 }
-.login-form .form-control{
+.login .form-control{
     border-radius: 20px;
     border: 2px solid #6FB2E6;
     background-color: #F3F3F3;

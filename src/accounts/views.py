@@ -11,6 +11,7 @@ from .models import User
 from django.core.mail import EmailMessage
 from . import timer
 import threading
+from random import randint
 
 
 def signup(request):
@@ -69,7 +70,15 @@ def activate(request, uidb64, token):
     else:
         return render(request, 'email_check.html', {'is_activated':False, 'is_link_invalid':True})
 
+def get_code():
+    code = ''
+    for i in range(10):
+        num = randint(0, 9)
+        code += str(num)
+    return code
+
 def user_login(request):
+    print('login')
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -77,43 +86,48 @@ def user_login(request):
             user = authenticate(username=cd['email'], password=cd['password'])
             if user is not None:
                 if user.is_active:
+                    # code = get_code()
+                    # user.code = code
+                    # user.save()
+                    # mail_subject = 'Код аутентификации'
+                    # message = render_to_string('two_factor_email.html', {'code':code})
+                    # to_email = user.email
+                    # email = EmailMessage(
+                    #     mail_subject, message, to=[to_email]
+                    # )
+                    # email.send()
                     login(request, user)
                     return redirect('home')
                 else:
-                    return HttpResponse('Disabled account')
+                    return render(request, 'account/login.html', {'form': form, 'disabled':True, 'not_validated':False})
             else:
-                return HttpResponse('Invalid login or password')
+                return render(request, 'account/login.html', {'form': form, 'disabled':False, 'not_validated':True})
     else:
         form = LoginForm()
-    return render(request, 'account/login.html', {'form': form})
+        return render(request, 'account/login.html', {'form': form, 'disabled':False, 'not_validated':False})
 
 def user_logout(request):
     logout(request)
     return redirect('home')
 
 
-def two_factor_login(request, uidb64, token):
+def two_factor_login(request):
+    print('two')
     if request.method == 'POST':
         form = TwoFactorForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
-            try:
-                uid = force_text(urlsafe_base64_decode(uidb64))
-                user = User.objects.get(pk=uid)
-            except(TypeError, ValueError, OverflowError, User.DoesNotExist):
-                user = None
-            if user is not None and account_activation_token.check_token(user, token):
-                if user.is_active:
+            user = request.user
+            print(user.email)
+            if user is not None:
+                if user.code == cd['code']:
                     login(request, user)
-                    print('logged in')
-                    return redirect('/')
+                    return redirect('home')
                 else:
-                    return HttpResponse('Disabled account')
-            else:
-                return HttpResponse('Wrong link')
+                    return render(request, 'account/two_factor_login.html', {'form': form, 'wrong_code':True })
     else:
         form = TwoFactorForm()
-    return render(request, 'account/two_factor_login.html', {'form': form})
+        return render(request, 'account/two_factor_login.html', {'form': form, 'wrong_code':False})
 
 def profile_view(request):
     if request.user.is_authenticated:

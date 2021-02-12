@@ -51,6 +51,7 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     join_time = models.DateTimeField(default=timezone.now)
     expiry_time = models.DateTimeField(default=timezone.now() + timezone.timedelta(minutes=15))
+    code = models.CharField(max_length=10)
 
     objects = UserManager()
 
