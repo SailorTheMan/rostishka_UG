@@ -20,7 +20,8 @@ WAIT_ITEM_RFID = False
 LAST_RFID = None
 FREE_CELL = []
 LINE_A_BUSY = False
-for i in range(216): FREE_CELL.append(i+1)
+for i in range(108): FREE_CELL.append(i+1)
+LAST_CARGO = None
 
 
 
@@ -216,7 +217,7 @@ async def from_crane_a(cur_cargo):
         cur_cargo.current_position = 'en route'
         conn = sqlite3.connect('sim_data.sqlite')
         cursor = conn.cursor() 
-        cursor.execute("UPDATE id_factory SET en_route=0 WHERE ID=?;", (cur_cargo.rf_id, ))
+        cursor.execute("UPDATE id_factory SET en_route=1 WHERE ID=?;", (cur_cargo.rf_id, ))
         conn.commit()
 
         await Crane_A.from_shelf(cur_cargo.destination)
@@ -261,6 +262,7 @@ async def from_crane_a(cur_cargo):
         LINE_A_BUSY = False
 
 async def produce_tasks():
+    global LAST_CARGO
     task_issued = True
     while True:
         
@@ -278,6 +280,10 @@ async def produce_tasks():
             for key, value in storekepper.active_cargo.items(): 
                 if key == item[7]:
                     await from_crane_a(value)
+                    LAST_CARGO = key
+            storekepper.active_cargo.pop(LAST_CARGO)
+        
+
         # if rs2_out.get_value() == False and task_issued:
         #     task_to_put = asyncio.create_task(controller.machines['RC1_4'].move())
         #     await controller.machines['RC1_4'].tasks.put(task_to_put)
