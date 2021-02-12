@@ -23,13 +23,15 @@ class Cargo:
         self.destination = destination            # TODO check all known positions and racks
         self.route_commands = asyncio.Queue()
 
-    def plan_route(self, crane):        # lays route to a certain crane for now
+    async def plan_route(self, crane):        # lays route to a certain crane for now
         cntrl = self.controller
         com_qu = self.route_commands
 
         if crane == 1:
-            self.route_commands.put(cntrl.machines['RC1'].move())
-
+            task1 = asyncio.create_task(com_qu.put(cntrl.machines['RC1'].move()))
+            await cntrl.machines['RC1'].tasks.put(task1)
+            task2 = asyncio.create_task(com_qu.put(cntrl.machines['RC1'].transit_next()))
+            await cntrl.machines['RC1'].tasks.put(task2)
         
         com_qu.get()
         if cntrl.machines['CT1'].tasks.empty():

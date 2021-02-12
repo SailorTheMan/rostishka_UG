@@ -143,7 +143,13 @@ def database_routine():
 
 async def produce_tasks():
     task_issued = True
+    cargo_spawn = True
     while True:
+        if cargo_spawn:
+            new_cargo = cargo.Cargo(controller)
+            await new_cargo.plan_route(1)
+            pass
+
         if rs2_out.get_value() == False and task_issued:
             task_to_put = asyncio.create_task(controller.machines['RC1_4'].move())
             await controller.machines['RC1_4'].tasks.put(task_to_put)
