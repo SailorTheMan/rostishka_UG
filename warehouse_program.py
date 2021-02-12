@@ -389,6 +389,14 @@ if __name__ == '__main__':
     ## First crane arrivals
     l_rc_a4 =   controller.attach_tag('Load RC A4')
     al_a =      controller.attach_tag('At Load A')
+    ## First crane out
+    ul_rc_a5 =   controller.attach_tag('Unload RC A5')
+    rc_a6 =      controller.attach_tag('RC A6')
+    rs_a_in =    controller.attach_tag('RS A In')
+    ## conveyor CT A -> CT 2A
+    rs_a_out =    controller.attach_tag('RS A Out')
+    rc_a8      = controller.attach_tag('RC A8')
+    rs_2a_in_a     = controller.attach_tag('RS 2A In From A')
     ## conveyor CT3B -> CTB
     rc_b1      = controller.attach_tag('RC B1')
     rsb_in     = controller.attach_tag('RS B In')
