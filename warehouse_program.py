@@ -14,7 +14,7 @@ import cargo
 import FactoryController as fio
 
         # loopback
-SIM_ADDRESS = 'http://192.168.220.129:7410'    #my local VM address
+SIM_ADDRESS = 'http://loopback:7410'    #my local VM address
 
 #region spawn_item functions
 
@@ -223,7 +223,7 @@ async def from_crane_a(cur_cargo):
         cur_cargo.current_position = 'en route'
         conn = sqlite3.connect('sim_data.sqlite')
         cursor = conn.cursor() 
-        cursor.execute("UPDATE id_factory SET en_route=1 WHERE ID=?;", (cur_cargo.rf_id, ))
+        cursor.execute("UPDATE id_factory SET en_route=1 WHERE RFID_ID=?;", (cur_cargo.rf_id, ))
         conn.commit()
 
         await Crane_A.from_shelf(cur_cargo.destination)
@@ -616,6 +616,8 @@ if __name__ == '__main__':
     cursor.execute("UPDATE id_factory SET cell=0")
     conn.commit()
     cursor.execute("UPDATE id_factory SET RFID_ID=0")
+    conn.commit()
+    cursor.execute("UPDATE id_factory SET en_route=0")
     conn.commit()
     conn.close()
 
