@@ -167,6 +167,8 @@ class Conveyor():
 
         return(rfid_data)
 
+
+
 class Conv_Series(Conveyor):
     def __init__(self, end_laser: Tag, *convs, rfid_reader=()):
         super().__init__(convs[0], end_laser, rfid_reader)
@@ -221,7 +223,7 @@ class Junction:
         self.ct_a = ct_
         self.ct_b = ct_a
         self.tasks = asyncio.Queue()
-    
+
     async def transit_ab(self):
         await asyncio.gather(self.ct_.move_to('left'), self.ct_a.accept_to('right'))
 
@@ -229,9 +231,10 @@ class Junction:
         await asyncio.gather(self.ct_a.move_to('left'), self.ct_.accept_to('right'))
 
 
+
+
 class Crane:
     # my first class)))
-
     def __init__(self, 
                 mov_x_a: Tag,
                 mov_z_a: Tag,
