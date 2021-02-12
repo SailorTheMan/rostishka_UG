@@ -4,13 +4,91 @@ import requests
 import json
 import sqlite3
 from sqlite3 import Error
-import time
+import time, datetime
 import asyncio
 
+#from spawn_item import select_item, time_to_sec, find_pending_items, get_RFID, spawn__item
 import FactoryController as fio
+import cargo
 
 SIM_ADDRESS = 'http://192.168.220.129:7410'    #my local VM address
 
+#region spawn_item functions
+
+START_TIME = time.time()
+WAIT_ITEM_RFID = False
+LAST_RFID = None
+
+
+
+def time_to_sec(cur_time):
+    ten = time.strptime('10:00:00', "%H:%M:%S")
+    ten = datetime.timedelta(hours=ten.tm_hour, minutes=ten.tm_min, seconds=ten.tm_sec).seconds
+    sec = time.strptime(cur_time, "%H:%M:%S")
+    sec = datetime.timedelta(hours=sec.tm_hour, minutes=sec.tm_min, seconds=sec.tm_sec).seconds
+    return sec-ten
+
+def find_pending_items(conn):
+    
+    for row in conn.execute('SELECT * FROM id_factory ORDER BY "Time in"'):
+        cur_time = time.time() - START_TIME
+        # if time to be in sim but not in sim
+        
+        if (cur_time > time_to_sec(row[4]) and cur_time < time_to_sec(row[5])):
+            if (not(row[8])):
+                print(row)
+                return row
+    return None
+
+
+def get_RFID():
+    # делаю прямыми сетами и гетами потому что тут нужно сразу получить реакцию
+    rfid_command.set_value(1)
+    rfid_iec.set_value(True)
+    time.sleep(0.1)
+    stat = rfid_stat.get_value()
+    print(stat)
+    rfid_iec.set_value(False)
+    if (stat == 0):
+        value = rfid_iread.get_value()
+        return value
+    else:
+        return None 
+
+
+def spawn__item(item):
+    # TODO добавить условие ожидание ошибки 1 (ожидать пока коробка уедет из зоны действия рфид датчика)
+    global LAST_RFID
+    global WAIT_ITEM_RFID
+    em1_emit.set_value('false')
+    # conn to db
+    conn = sqlite3.connect('sim_data.sqlite')
+    cursor = conn.cursor()
+    
+    RFID_value = get_RFID()
+    if LAST_RFID == RFID_value:
+        RFID_value = None
+
+    if (not(WAIT_ITEM_RFID) and rfid_stat.value == 1):
+        em1_part.set_value(8192)
+        em1_emit.set_value("true")
+        WAIT_ITEM_RFID = True
+        rc_input.set_value('true')
+    
+
+    if RFID_value is not None:
+        cursor.execute("UPDATE id_factory SET in_sim=1 WHERE ID=?;", (item[2], ))
+        conn.commit()
+        cursor.execute("UPDATE id_factory SET RFID_ID=? WHERE ID=?;", (RFID_value,item[2], ))
+        conn.commit()
+        WAIT_ITEM_RFID = False
+        # rc_input.value = 'false'
+        print(f'{item[2]} in sim, in_sim: {item[7]}')
+        LAST_RFID = RFID_value
+
+    conn.close()
+
+#endregion
 
 
 
@@ -29,19 +107,53 @@ async def pallet2():
 
 async def pallet3():
     await asyncio.gather(CT2.move_to('forward'), RC1_4.accept())
-    await RC1_4.move()
     await asyncio.gather(RC1_4.transit_next(), CT3.accept_to('forward'))
     await asyncio.gather(CT3.move_to('left'), CT3B.accept_to('right'))
     await asyncio.gather(CT3B.move_to('right'), RCb1.accept())
-    await RCb1.move()
 
 async def wtf():
     await asyncio.gather(pallet2(), pallet3())
 ### WOW 
-async def task_controll():
-    await asyncio.gather(pallet1(), wtf())
-    #await pallet1()
-    #await pallet2()
+
+def database_routine():
+    print('database routine started')
+    controller.fetch_tags()
+
+    conn = sqlite3.connect('sim_data.sqlite')
+    cursor = conn.cursor()
+
+    ## check pending DB entries
+    item = find_pending_items(conn)
+    if (item is not None):
+        spawn__item(item)
+        item = None
+
+    controller.push_tags()
+    print('database routine ended')
+
+
+
+async def task_control():
+    while(True):
+        start = time.perf_counter()
+
+        database_routine()
+        # DEBUG
+        spawn = True
+        if spawn:
+            Item = cargo.Cargo(controller)
+            spawn=False
+
+
+
+        
+        elapsed = time.perf_counter() - start
+        print(elapsed)
+
+    
+
+
+
 
 
 
@@ -49,7 +161,9 @@ async def task_controll():
 
 if __name__ == '__main__':
     controller = fio.FIO_Controller(SIM_ADDRESS)
-    #####       Tag declaration      #####
+
+    #region ####        DECLARATIONS      ####
+    #region ###       TAG declaration      ###
     print('Tag declaration')
     em1_part = controller.attach_tag('Emitter 1 (Part)')
     em1_emit = controller.attach_tag('Emitter 1 (Emit)')
@@ -145,6 +259,26 @@ if __name__ == '__main__':
     rc_b1      = controller.attach_tag('RC B1')
     rsb_in     = controller.attach_tag('RS B In')
 
+    ## cranes tags
+    mov_x_a = controller.attach_tag('Moving X A')
+    mov_z_a = controller.attach_tag('Moving Z A')
+    targ_pos_a = controller.attach_tag('Target Position A')
+    at_mid_a = controller.attach_tag('At Middle A')
+    at_left_a = controller.attach_tag('At Left A')
+    at_right_a = controller.attach_tag('At Right A')
+    fork_left_a = controller.attach_tag('Forks Left A')
+    fork_right_a = controller.attach_tag('Forks Right A')
+    lift_a = controller.attach_tag('Lift A')
+    mov_x_b = controller.attach_tag('Moving X B')
+    mov_z_b = controller.attach_tag('Moving Z B')
+    targ_pos_b = controller.attach_tag('Target Position B')
+    at_mid_b = controller.attach_tag('At Middle B')
+    at_left_b = controller.attach_tag('At Left B')
+    at_right_b = controller.attach_tag('At Right B')
+    fork_left_b = controller.attach_tag('Forks Left B')
+    fork_right_b = controller.attach_tag('Forks Right B')
+    lift_b = controller.attach_tag('Lift B')
+
     ##      CONVEYORS 
     RC1   = controller.attach_machine('RC1', fio.Conveyor(rc_input, rs1_in, (rfid_command, rfid_iec, rfid_iread, rfid_stat)))
     RCa1  = controller.attach_machine('RCa1', fio.Conveyor(rc_a1, al_a))
@@ -153,15 +287,17 @@ if __name__ == '__main__':
     lRCa4 = controller.attach_machine('lRCa4', fio.Conveyor(l_rc_a4, al_a) )# arc end
     RC1_4 = controller.attach_machine('RC1_4', fio.Conveyor(rc_1_4, rs3_in))
     RCb1  = controller.attach_machine('RCb1', fio.Conveyor(rc_b1, rsb_in))
+    #endregion
 
 
-    ## CONVEYOR SERIES
+    #region ##      CONVEYOR SERIES         ##
     Arc1    = controller.attach_machine('Arc1', fio.Conv_Series(al_a, rc_a1, rcc_a2, rc_a3, l_rc_a4))
     Bridge1 = controller.attach_machine('Bridge1', fio.Conv_Series(rs2_in, rc_1_2, rc_1_3)) # Between CT1 and CT2
     Bridge2 = controller.attach_machine('Bridge2', fio.Conv_Series(rs4_in, rc_1_5, rc_1_6)) # Between CT3 and CT4
     Bridge3 = controller.attach_machine('Bridge3', fio.Conv_Series(rs3b_in, rcb8, rcb9))    # Between CT3 and CT4
+    #endregion
 
-    ##      CROSSING CONVEYORS
+    #region ##      CROSSING CONVEYORS      ##
     CT1     = controller.attach_machine('CT1', fio.Crossing_conveyor(ct1_plus, ct1_min, ct1_left, ct1_right, cs_1, rs1_out, stop_ct1, wait_time=2.1))
     CT1A    = controller.attach_machine('CT1A', fio.Crossing_conveyor(ct1a_plus, ct1a_min, ct1a_left, ct1a_right, cs_1a, rs1a_out, stop_ct1a, wait_time=3.5))
     CT2     = controller.attach_machine('CT2', fio.Crossing_conveyor(ct2_plus, ct2_min, ct2_left, ct2_right, cs_2, rs2_out, wait_time=3.5))
@@ -169,27 +305,64 @@ if __name__ == '__main__':
     CT3B    = controller.attach_machine('CT3B', fio.Crossing_conveyor(ct3b_plus, ct3b_min, ct3b_left, ct3b_right, cs_3b, rs3b_out, wait_time=3.5))
     CT4     = controller.attach_machine('CT4', fio.Crossing_conveyor(ct4_plus, ct4_min, ct4_left, ct4_right, cs_4, rs4_out, wait_time=2.1))
     CT4B    = controller.attach_machine('CT4B', fio.Crossing_conveyor(ct4b_plus, ct4b_min, ct4b_left, ct4b_right, cs_4b, rs4b_out, wait_time=3.5))
+    #endregion
+    
+        ##  CRANES
+    Crane_A = controller.attach_machine('Crane_A', fio.Crane(mov_x_a, 
+                                                            mov_z_a, 
+                                                            targ_pos_a, 
+                                                            at_mid_a, 
+                                                            at_left_a, 
+                                                            at_right_a, 
+                                                            fork_left_a, 
+                                                            fork_right_a, 
+                                                            lift_a 
+                                                            ))
 
-    #####   END DECLARATION   #####
+    Crane_B = controller.attach_machine('Crane_B', fio.Crane(mov_x_b, 
+                                                            mov_z_b, 
+                                                            targ_pos_b, 
+                                                            at_mid_b, 
+                                                            at_left_b, 
+                                                            at_right_b, 
+                                                            fork_left_b, 
+                                                            fork_right_b, 
+                                                            lift_b 
+                                                            ))
+
+
+    #endregion      #####   END DECLARATION   #####
+
 
     # controller.sim_start()     doesnt work as expected
     controller.fetch_tags()
 
 
-    em1_part.set_value(8192)
-    #em1_emit.set_value("true")
-    time.sleep(1)
-    em1_part.set_value(8192)
-    em1_emit.set_value("false")
-
     #loop = asyncio.get_event_loop()  
     #asyncio.ensure_future(rc10.move())
     #asyncio.ensure_future(rc1.move())
-
+    #  Перед запуском программы надо скзать базе данных что в симуляции ничего нет
+    conn = sqlite3.connect('sim_data.sqlite')
+    cursor = conn.cursor()
+    cursor.execute("UPDATE id_factory SET in_sim=0")
+    conn.commit()
+    conn.close()
 
 
     #while(True):
-    asyncio.run( task_controll() ) 
+    loop = asyncio.get_event_loop()
+    try:
+        asyncio.ensure_future(task_control())
+        loop.run_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        print("Closing Loop")
+        loop.close()
+    #asyncio.run( task_control() ) # _forever
+    if False:
+        async_loop.stop()
+
     #asyncio.run(loop())
         #pass
         

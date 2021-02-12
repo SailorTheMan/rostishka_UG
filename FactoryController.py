@@ -36,17 +36,13 @@ class Tag:
             self.value = requests.get(query).json()['value']
         else:
             query = self.address+'/api/tags?name='+self.name
-            print(query)
+            #print(query)
             self.value = requests.get(query).json()[0]['value']
         
         
         return(self.value)
 
     def set_value(self, value):
-        if value == False:
-            value = "false"
-        if value == True:
-            value = "true"
         self.value = value
         
         #print(payload)
@@ -131,7 +127,7 @@ class Conveyor():
         # rfid stuff
 
     async def move(self):
-        self.busy = True
+        
         while( self.laser.get_value() == True ): 
             await asyncio.sleep(ASYNC_SLEEP_TIME)
             if self.actuator.value != True:
@@ -142,6 +138,7 @@ class Conveyor():
     async def accept(self):
         self.busy = True
         self.actuator.set_value(True)
+        await self.move()
 
     async def transit_next(self):
         while( self.laser.get_value() == False ): 
@@ -158,7 +155,8 @@ class Conveyor():
         rfid_error = self.rfid_stat.get_value()
 
         if (rfid_error == 0):
-            print(rfid_data)
+            # print(rfid_data)
+            None
         elif (rfid_error == 1):
             print("Error No Tag")
         elif (rfid_error == 2):
@@ -217,3 +215,126 @@ class Crossing_conveyor():
         self.directions[direction].set_value(False)
         return(1)
         
+
+
+class Crane:
+    # my first class)))
+
+    def __init__(self, 
+                mov_x_a: Tag,
+                mov_z_a: Tag,
+                targ_pos_a: Tag,
+                at_mid_a: Tag,
+                at_left_a: Tag,
+                at_right_a: Tag,
+                fork_left_a: Tag,
+                fork_right_a: Tag,
+                lift_a: Tag):
+
+        self.mov_x_a = mov_x_a
+        self.mov_z_a = mov_z_a
+        self.targ_pos_a = targ_pos_a
+        self.at_mid_a = at_mid_a
+        self.at_left_a = at_left_a
+        self.at_right_a = at_right_a
+        self.fork_left_a = fork_left_a
+        self.fork_right_a = fork_right_a
+        self.lift_a = lift_a
+
+        self.busy = False
+
+
+    async def to_shelf(self, number):
+        right = False
+        # number - 1-54 левая сторона 55-108 - правая сторона
+        if (number > 54): 
+            number = number % 54
+            right = True
+        # мозг устал простите:
+        if (number == 108): number = 54
+        self.busy = True
+
+
+        self.fork_left_a.set_value(True)
+        while(not(self.at_left_a.get_value())): await asyncio.sleep(0.1)
+
+        self.lift_a.set_value(True)
+        await asyncio.sleep(0.1)
+        while(not(self.mov_z_a.get_value())): await asyncio.sleep(0.1)
+
+
+        self.fork_left_a.set_value(False)
+        while(not((self.at_mid_a.get_value()))): await asyncio.sleep(0.1)
+
+    
+        self.targ_pos_a.set_value(number)
+        await asyncio.sleep(0.1)
+        while (self.mov_z_a.get_value() or self.mov_x_a.get_value()): await asyncio.sleep(0.1)
+
+        if (right):
+            self.fork_right_a.set_value(True)
+            while(not(self.at_right_a.get_value())): await asyncio.sleep(0.1)
+        else:
+            self.fork_left_a.set_value(True)
+            while(not(self.at_left_a.get_value())): await asyncio.sleep(0.1)
+
+        self.lift_a.set_value(False)
+        await asyncio.sleep(0.1)
+        while(self.mov_z_a.get_value()): await asyncio.sleep(0.1)
+        
+        if(right):
+            self.fork_right_a.set_value(False)
+        else:
+            self.fork_left_a.set_value(False)
+        while(not(self.at_mid_a.get_value())): await asyncio.sleep(0.1)
+
+        self.targ_pos_a.set_value(55)
+        await asyncio.sleep(0.1)
+        while(self.mov_z_a.get_value()) or self.mov_x_a.get_value(): await asyncio.sleep(0.1)
+
+
+    async def from_shelf(self, number):
+        right = False
+        # number - 1-54 левая сторона 55-108 - правая сторона
+        if (number > 54): 
+            number = number % 54
+            right = True
+        # мозг устал простите:
+        if (number == 108): number = 54
+        self.busy = True
+
+        self.targ_pos_a.set_value(number)
+        await asyncio.sleep(0.1)
+        while (self.mov_z_a.get_value() or self.mov_x_a.get_value()): await asyncio.sleep(0.1)
+
+        if (right):
+            self.fork_right_a.set_value(True)
+            while(not(self.at_right_a.get_value())): await asyncio.sleep(0.1)
+        else:
+            self.fork_left_a.set_value(True)
+            while(not(self.at_left_a.get_value())): await asyncio.sleep(0.1)
+    
+        self.lift_a.set_value(True)
+        await asyncio.sleep(0.1)
+        while(not(self.mov_z_a.get_value())): await asyncio.sleep(0.1)
+
+        if (right):
+            self.fork_right_a.set_value(False)
+        else:
+            self.fork_left_a.set_value(False)
+        while(not((self.at_mid_a.get_value()))): await asyncio.sleep(0.1)
+
+        self.targ_pos_a.set_value(55)
+        await asyncio.sleep(0.1)
+        while(self.mov_z_a.get_value()) or self.mov_x_a.get_value(): await asyncio.sleep(0.1)
+        
+        
+        self.fork_right_a.set_value(True)
+        while(not(self.at_right_a.get_value())): await asyncio.sleep(0.1)
+    
+        self.lift_a.set_value(False)
+        await asyncio.sleep(0.1)
+        while(self.mov_z_a.get_value()): await asyncio.sleep(0.1)
+        
+        self.fork_right_a.set_value(False)
+        while(not(self.at_mid_a.get_value())): await asyncio.sleep(0.1)
