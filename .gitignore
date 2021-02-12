@@ -3,4 +3,4 @@ __pycache__/FactoryController.cpython-37.pyc
 __pycache__/FactoryController.cpython-38.pyc
 .vscode/settings.json
 *.pyc
-.venv
+.venv/

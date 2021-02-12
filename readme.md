@@ -18,7 +18,8 @@ ROSтишка тим для НТИ УГ
 * Включить веб сервер в симуляции факторио ```app.web_server = True```
 
 ## Запуск веб-интерфейса:
-Из папки src выполнить: ```python manage.py runserver```
+* Создать админа: ```python manage.py createsuperuser```
+* Из папки src выполнить: ```python manage.py runserver```
 
 ## Запуск скрипта, управляющего симуляцией
 TODO: (надо дописать сюда чего-нибудь)
