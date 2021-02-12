@@ -11,13 +11,15 @@ import asyncio
 import FactoryController as fio
 import cargo
 
-SIM_ADDRESS = 'http://192.168.220.129:7410'    #my local VM address
+SIM_ADDRESS = 'http://loopback:7410'    #my local VM address
 
 #region spawn_item functions
 
 START_TIME = time.time()
 WAIT_ITEM_RFID = False
 LAST_RFID = None
+FREE_CELL = []
+for i in range(216): FREE_CELL.append(i+1)
 
 
 
@@ -77,10 +79,26 @@ def spawn__item(item):
     
 
     if RFID_value is not None:
+        # новый объект приехал к рфид 
         cursor.execute("UPDATE id_factory SET in_sim=1 WHERE ID=?;", (item[2], ))
         conn.commit()
         cursor.execute("UPDATE id_factory SET RFID_ID=? WHERE ID=?;", (RFID_value,item[2], ))
         conn.commit()
+        dist = FREE_CELL.pop(0)
+        cursor.execute("UPDATE id_factory SET cell=? WHERE ID=?;", (dist,item[2], ))
+        conn.commit()
+        # поидее тут надо создавать объект карго и возвращать его?
+
+
+        #######################################################
+        ##              CREATE NEW CARGO                     ##
+
+        new_cargo = cargo.Cargo(controller, RFID_value, destination=dist)
+        storekepper.add_cargo(new_cargo)
+
+
+
+        ######################################################
         WAIT_ITEM_RFID = False
         # rc_input.value = 'false'
         print(f'{item[2]} in sim, in_sim: {item[7]}')
@@ -115,12 +133,13 @@ async def wtf():
     await asyncio.gather(pallet2(), pallet3())
 ### WOW 
 
-def database_routine():
+async def database_routine():
+    # проверяем расписание грузов
     print('database routine started')
-    controller.fetch_tags()
+    
 
     conn = sqlite3.connect('sim_data.sqlite')
-    cursor = conn.cursor()
+    # cursor = conn.cursor()
 
     ## check pending DB entries
     item = find_pending_items(conn)
@@ -128,23 +147,26 @@ def database_routine():
         spawn__item(item)
         item = None
 
-    controller.push_tags()
+    
     #print('database routine ended')
 
 async def produce_tasks():
     task_issued = True
     while True:
+            
+        await database_routine()
+
         if rs2_out.get_value() == False and task_issued:
             task_to_put = asyncio.create_task(controller.machines['RC1_4'].move())
             await controller.machines['RC1_4'].tasks.put(task_to_put)
             task_issued = False
-        if rs3_in.get_value() == False and not task_issued:
-            task_to_put = asyncio.create_task(controller.machines['RC1_4'].transit_next())
-            task_to_put2 = asyncio.create_task(controller.machines['CT3'].accept_to('forward'))
+        # if rs3_in.get_value() == False and not task_issued:
+        #     task_to_put = asyncio.create_task(controller.machines['RC1_4'].transit_next())
+        #     task_to_put2 = asyncio.create_task(controller.machines['CT3'].accept_to('forward'))
 
-            await controller.machines['RC1_4'].tasks.put(task_to_put)
-            await controller.machines['CT3'].tasks.put(task_to_put2)
-            task_issued = False
+            # await controller.machines['RC1_4'].tasks.put(task_to_put)
+        #     await controller.machines['CT3'].tasks.put(task_to_put2)
+            # task_issued = False
 
         await asyncio.sleep(0.4)
         print('producer fired')
@@ -195,6 +217,8 @@ async def za_loopu():
 
 if __name__ == '__main__':
     controller = fio.FIO_Controller(SIM_ADDRESS)
+
+    storekepper = cargo.Storekeeper(controller)
 
     #region ####        DECLARATIONS      ####
     #region ###       TAG declaration      ###
@@ -379,6 +403,10 @@ if __name__ == '__main__':
     conn = sqlite3.connect('sim_data.sqlite')
     cursor = conn.cursor()
     cursor.execute("UPDATE id_factory SET in_sim=0")
+    conn.commit()
+    cursor.execute("UPDATE id_factory SET cell=0")
+    conn.commit()
+    cursor.execute("UPDATE id_factory SET RFID_ID=0")
     conn.commit()
     conn.close()
 
