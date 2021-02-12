@@ -185,11 +185,14 @@ async def to_crane_a(cur_cargo):
     if not(LINE_A_BUSY):
         conn = sqlite3.connect('sim_data.sqlite')
         cursor = conn.cursor()    
+
         LINE_A_BUSY = True
-        ct1_plus.set_value(True)
-        while (not(cs_1.get_value())): await asyncio.sleep(0.1)
-        await asyncio.sleep(0.205)
-        ct1_plus.set_value(False)
+        #ct1_plus.set_value(True)
+        #while (not(cs_1.get_value())): await asyncio.sleep(0.1)
+        #await asyncio.sleep(0.205)
+        await CT1.move_to('forward')
+        await asyncio.gather(JN1)
+        
         ct1_left.set_value(True)
         ct1a_right.set_value(True)
         while (rs1a_out.get_value()): await asyncio.sleep(0.1)
