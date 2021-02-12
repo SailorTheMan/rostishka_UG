@@ -28,9 +28,10 @@ class UserManager(BaseUserManager):
         """
         user = self.create_user(
             email,
-            password=password
+            password=password,
         )
-        user.is_admin = True
+        user.is_admin  = True
+        user.is_active = True
         user.save(using=self._db)
         return user
 
