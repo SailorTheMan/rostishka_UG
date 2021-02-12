@@ -1,13 +1,28 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 {% block content %}
 <div class="container">
-  <h2>Личный кабинет сотрудника</h2>
+  <h2 class="my-2">Личный кабинет сотрудника</h2>
   <div class="content">
-    <h2>{{ user.first_name }} {{user.second_name}}</h2>
+    <h2 class="my-2">{{ user.first_name }} {{user.second_name}}</h2>
+    <img width="200px" src="{{user.profile.image.url}}" alt="">
     <ul>
-      <li>Email: {{ user.email }}</li>
-      <li>Bio: {{ user.profile.bio }}</li>
     </ul>
   </div>
+
+  <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <fieldset class="form-group">
+              <legend class="border-bottom mb-4">Личный кабинет</legend>
+              {% if email_busy %}
+                <p>Этот адрес электронной почты занят</p>
+              {% endif %}
+              {{ u_form|crispy }}
+              {{ p_form|crispy }}
+          </fieldset>
+          <div class="form-group">
+              <button class="btn btn-outline-info my-3" type="submit">Сохранить</button>
+          </div>
+      </form>
 </div>
 {% endblock %}
