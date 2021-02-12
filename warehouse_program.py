@@ -45,13 +45,13 @@ def find_pending_items(conn):
     return None
 
 def find_pending_items_from(conn):
-    
     for row in conn.execute('SELECT * FROM id_factory ORDER BY "Time out"'):
         cur_time = time.time() - START_TIME
         # if time to be in sim but not in sim
-        print(cur_time)
+        #print(cur_time)
         if cur_time > time_to_sec(row[5]):
             if ((row[8])):
+                print('row: ')
                 print(row)
                 return row
     return None
@@ -127,39 +127,11 @@ async def spawn__item(item, commands ):
 #endregion
 
 
-
-async def pallet1():
-    #await asyncio.gather(RC10.move(), RC1.move(), RCa1.move(), RCCa2.move(), RCa3.move(), lRCa4.move())
-    await RC1.move()
-    await asyncio.gather(RC1.transit_next(), CT1.accept_to('forward'))
-    await asyncio.gather(CT1.move_to('left'), CT1A.accept_to('right'))
-    await CT1A.move_to('right')
-    await Arc1.move()
-
-async def pallet2():
-    
-    await CT1A.move_to('right')
-    await Arc1.move()
-
-async def pallet3():
-    await asyncio.gather(CT2.move_to('forward'), RC1_4.accept())
-    await asyncio.gather(RC1_4.transit_next(), CT3.accept_to('forward'))
-    await asyncio.gather(CT3.move_to('left'), CT3B.accept_to('right'))
-    await asyncio.gather(CT3B.move_to('right'), RCb1.accept())
-
-async def wtf():
-    await asyncio.gather(pallet2(), pallet3())
-### WOW 
-
 async def database_routine(commands):
-    # проверяем расписание грузов
-    
+    # проверяем расписание грузов  
     print('database routine started')
-    
-
     conn = sqlite3.connect('sim_data.sqlite')
     # cursor = conn.cursor()
-
     ## check pending DB entries
     item = find_pending_items(conn)
     if (item is not None):
@@ -172,15 +144,10 @@ async def database_routine(commands):
 async def database_routine_from():
     # проверяем расписание грузов
     print('database routine started')
-    
-
     conn = sqlite3.connect('sim_data.sqlite')
     # cursor = conn.cursor()
-
     ## check pending DB entries
     item = find_pending_items_from(conn)
-
-    
     return item
 
 async def to_crane_a(cur_cargo):
@@ -190,15 +157,12 @@ async def to_crane_a(cur_cargo):
         cursor = conn.cursor()    
 
         LINE_A_BUSY = True
-        #ct1_plus.set_value(True)
-        #while (not(cs_1.get_value())): await asyncio.sleep(0.1)
-        #await asyncio.sleep(0.205)
         
         await asyncio.gather(CT1.accept_to('forward'), RC1.transit_next())
-        await JN1.transit_ab()
+        await JN1.transit_ab()              # функци передачи посылки между соседними кроссингами
         await asyncio.gather(CT1A.move_to('right'), Arc1.move())
         await Crane_A.to_shelf(cur_cargo.destination)
-        
+
         cur_cargo.current_position = 'en cell'
         cursor.execute("UPDATE id_factory SET en_route=0 WHERE RFID_ID=?;", (cur_cargo.rf_id, ))
         conn.commit()
@@ -258,26 +222,29 @@ async def from_crane_a(cur_cargo):
 
 async def produce_tasks(commands):
     global LAST_CARGO
-    task_issued = True
-    cargo_spawn = True
     while True:
         
-        await asyncio.create_task(database_routine(commands))
+        asyncio.create_task(database_routine(commands))
         if len(storekeeper.active_cargo) != 0:
 
             for cur_cargo in storekeeper.active_cargo.values():    
                 if cur_cargo.current_position == 'en route':
                     conn.close()
                     if not(rs1_in.get_value()):
-                        await to_crane_a(cur_cargo)
-                    
+                        to_a = asyncio.create_task(to_crane_a(cur_cargo))
+                
         item = await database_routine_from()
         if item is not None:
             for key, value in storekeeper.active_cargo.items(): 
                 if key == item[7]:
                     await from_crane_a(value)
                     LAST_CARGO = key
-            storekeeper.active_cargo.pop(LAST_CARGO)
+                    print('this is: ')
+                    print(LAST_CARGO, value)
+            conn = sqlite3.connect('sim_data.sqlite')
+            if LAST_CARGO is not None:
+                storekeeper.active_cargo.pop(LAST_CARGO)
+                LAST
         
 
         # if rs2_out.get_value() == False and task_issued:
@@ -334,11 +301,6 @@ async def za_loopu():
     
     elapsed = time.perf_counter() - start
     print('loop time: ' + elapsed)
-
-    
-
-
-
 
 
 
@@ -583,7 +545,7 @@ if __name__ == '__main__':
     CT4B    = controller.attach_machine('CT4B', fio.Crossing_conveyor(ct4b_plus, ct4b_min, ct4b_left, ct4b_right, cs_4b, rs4b_out, wait_time=3.5))
     CTA     = controller.attach_machine('CTA', fio.Crossing_conveyor(cta_plus, cta_min, cta_left, cta_right, cs_a, rs_a_out, wait_time=2.1))
     #endregion
-
+     
 
     #region JUNCTIONS
     JN1     = controller.attach_machine('JN1', fio.Junction(CT1, CT1A))
