@@ -22,7 +22,16 @@
         <div class="login mx-auto mt-5">
             <h1>РЕГИСТРАЦИЯ</h1>
             {% if is_user_exist %}
-            <p class='text-center'>Аккаунт с таким адресом электронной почты уже существует</p>
+                <p class='text-center'>Аккаунт с таким адресом электронной почты уже существует</p>
+            {% elif not_validated %}
+                <p class='text-center'>Пароль должен соответствовать следующим правилам:</p>
+                <ul class='list-group'>
+                    <li><p class="list-group-item list-group-item-danger my-0">Cодержать как минимум 8 символов</p></li>
+                    <li><p class="list-group-item list-group-item-danger my-0">Содержать и цифры и буквы</p></li>
+                    <li><p class="list-group-item list-group-item-danger my-0">Содержать как минимум одну заглавную букву</p></li>
+                    <li><p class="list-group-item list-group-item-danger my-0">Не должен быть одним из популярных паттернов (admin1234, qwerty и тд)</p></li>
+                </ul>
+                <p class='text-center'>Пароль должен содержать как минимум 8 символов</p>
             {% endif %}
             <form class="login-form" action="." method="post">
                 {% csrf_token %}

@@ -12,12 +12,25 @@ from django.core.mail import EmailMessage
 from . import timer
 import threading
 from random import randint
+import re
+
+def parse_email(s):
+    (_, _, _, raw_email, _) = s.split(' ', 4)
+    email = raw_email.replace('value="', '')
+    email = email.rstrip('"')
+    return email
 
 
 def signup(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
-        print(form.is_valid())
+        email = parse_email(str(form['email']))
+        try:
+            user = User.objects.get(email=email)
+            form = SignupForm()
+            return render(request, 'signup.html', {'form': form, 'is_user_exist':True})
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
         if form.is_valid():
             user = form.save(commit=False)
             user.is_active = False
@@ -35,12 +48,14 @@ def signup(request):
                         mail_subject, message, to=[to_email]
             )
             email.send()
-            x = threading.Thread(target=timer.start_countdown, args=(User, user.pk, 0.5))
+            x = threading.Thread(target=timer.start_countdown, args=(User, user.pk, 15))
             x.start()
             return render(request, 'email_check.html', {'is_activated':False, 'is_link_invalid':False})
+                
         else:
             form = SignupForm()
-            return render(request, 'signup.html', {'form': form, 'is_user_exist':True})
+            return render(request, 'signup.html', {'form': form, 'is_user_exist':False, 'not_validated':True})
+            
     else:
         form = SignupForm()
         return render(request, 'signup.html', {'form': form})
@@ -86,18 +101,23 @@ def user_login(request):
             user = authenticate(username=cd['email'], password=cd['password'])
             if user is not None:
                 if user.is_active:
-                    # code = get_code()
-                    # user.code = code
-                    # user.save()
-                    # mail_subject = 'Код аутентификации'
-                    # message = render_to_string('two_factor_email.html', {'code':code})
-                    # to_email = user.email
-                    # email = EmailMessage(
-                    #     mail_subject, message, to=[to_email]
-                    # )
-                    # email.send()
-                    login(request, user)
-                    return redirect('home')
+                    code = get_code()
+                    user.code = code
+                    user.save()
+                    mail_subject = 'Код аутентификации'
+                    message = render_to_string('two_factor_email.html', {'code':code})
+                    to_email = user.email
+                    email = EmailMessage(
+                        mail_subject, message, to=[to_email]
+                    )
+                    email.send()
+                    current_site = get_current_site(request)
+                    domain = current_site.domain
+                    uid = urlsafe_base64_encode(force_bytes(user.pk))
+                    token = account_activation_token.make_token(user)
+                    # login(request, user)
+                    print('http://' + domain + '/account/code/' + 'uidb64=' + uid + 'token=' + token)
+                    return redirect('http://' + domain + '/account/code/' + uid + '/' + token + '/')
                 else:
                     return render(request, 'account/login.html', {'form': form, 'disabled':True, 'not_validated':False})
             else:
@@ -111,23 +131,26 @@ def user_logout(request):
     return redirect('home')
 
 
-def two_factor_login(request):
-    print('two')
+def two_factor_login(request, uidb64, token):
     if request.method == 'POST':
+        try:
+            uid = force_text(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
         form = TwoFactorForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
-            user = request.user
             print(user.email)
             if user is not None:
                 if user.code == cd['code']:
                     login(request, user)
                     return redirect('home')
                 else:
-                    return render(request, 'account/two_factor_login.html', {'form': form, 'wrong_code':True })
+                    return render(request, 'two_factor_login.html', {'form': form, 'wrong_code':True })
     else:
         form = TwoFactorForm()
-        return render(request, 'account/two_factor_login.html', {'form': form, 'wrong_code':False})
+        return render(request, 'two_factor_login.html', {'form': form, 'wrong_code':False})
 
 def profile_view(request):
     if request.user.is_authenticated:

@@ -5,7 +5,7 @@ from accounts.views import signup, activate, two_factor_login, profile_view
 
 urlpatterns = [
     # post views
-    url(r'^login/code$', views.two_factor_login, name='two_factor_login'),
+    path('code/<uidb64>/<token>/', two_factor_login, name='two_factor_login'),
     url(r'^login/$', views.user_login, name='login'),
     url(r'^logout/$', views.user_logout, name='logout'),
     url(r'^signup/$', signup, name='signup'),
