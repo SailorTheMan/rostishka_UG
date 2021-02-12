@@ -1,6 +1,7 @@
 
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
 from pages.views import (
     home_view,
     about_view,
@@ -11,6 +12,7 @@ from pages.views import (
 )
 
 from django.conf.urls import url
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -24,3 +26,4 @@ urlpatterns = [
     path('csv/', downloadcsv_view, name="downloadcsv"),
 
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

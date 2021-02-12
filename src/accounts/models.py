@@ -1,6 +1,7 @@
 from django.db import models
+from django.db.models.signals import post_save
 from django.contrib.auth.models import (
-    BaseUserManager, AbstractBaseUser
+    BaseUserManager, AbstractBaseUser, PermissionsMixin
 )
 from django.utils import timezone
 
@@ -30,13 +31,13 @@ class UserManager(BaseUserManager):
             email,
             password=password,
         )
-        user.is_admin  = True
+        user.is_superuser  = True
         user.is_active = True
         user.save(using=self._db)
         return user
 
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(
         verbose_name='email address',
         max_length=255,
@@ -48,7 +49,7 @@ class User(AbstractBaseUser):
     second_name = models.CharField(default='Фамилия', max_length=64)
     bio = models.TextField()
     is_active = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
     join_time = models.DateTimeField(default=timezone.now)
     expiry_time = models.DateTimeField(default=timezone.now() + timezone.timedelta(minutes=15))
     code = models.CharField(max_length=10)
@@ -64,4 +65,27 @@ class User(AbstractBaseUser):
     def is_staff(self):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
-        return self.is_admin
+        return self.is_superuser
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
+
+    def __str__(self):
+        return f'{self.user.email} Profile'
+
+    # def save(self):
+    #     super.save()
+
+    #     img = Image.open(self.image.path)
+    #     if img.height > 300 or img.width > 300:
+    #         output_size = (300, 300)
+    #         img.thumbnail(output_size)
+    #         img.save(self.image.path)
+
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+post_save.connect(create_user_profile, sender=User)
+    

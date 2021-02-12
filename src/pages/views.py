@@ -17,7 +17,7 @@ def home_view(request, *args, **kwargs):
                 message = render_to_string('call_me_email.html',{
                     'phone':cd['phone']
                 })
-                emails = User.objects.filter(is_admin=True).values_list('email')
+                emails = User.objects.filter(is_superuser=True).values_list('email')
                 to_email = []
                 for row in emails:
                     to_email.append(row[0])
@@ -39,7 +39,7 @@ def home_view(request, *args, **kwargs):
                     'size':cd['warehouse_size'],
                     'company':cd['company'],
                 })
-                emails = User.objects.filter(is_admin=True).values_list('email')
+                emails = User.objects.filter(is_superuser=True).values_list('email')
                 to_email = []
                 for row in emails:
                     to_email.append(row[0])
@@ -67,7 +67,7 @@ def about_view(request, *args, **kwargs):
                 'name':cd['name'],
                 'message':cd['message']
             })
-            emails = User.objects.filter(is_admin=True).values_list('email')
+            emails = User.objects.filter(is_superuser=True).values_list('email')
             to_email = []
             for row in emails:
                 to_email.append(row[0])
@@ -108,5 +108,5 @@ def stream_view(request, *args, **kwargs):
     if not request.user.is_authenticated:
         is_admin = False
     else:
-        is_admin = request.user.is_admin
+        is_admin = request.user.is_superuser
     return render(request, "stream.html", {'stream_url':stream_url, 'is_admin':is_admin})

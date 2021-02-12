@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
+from .models import Profile
 class SignupForm(UserCreationForm):
     email = forms.EmailField(max_length=200, help_text='Required', widget=forms.EmailInput(
         attrs={
@@ -40,3 +41,20 @@ class TwoFactorForm(forms.Form):
             'pattern':"^[0-9]{10}$"
         }
     ))
+
+class UserUpdateForm(forms.ModelForm):
+    email = forms.EmailField(max_length=200, widget=forms.EmailInput(
+        attrs={
+            'class':'form-control mb-2',
+            'placeholder':'ПОЧТА'
+        }
+    ))
+
+    class Meta:
+        model = get_user_model()
+        fields = ('email',  'first_name', 'second_name', 'bio')
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['image']

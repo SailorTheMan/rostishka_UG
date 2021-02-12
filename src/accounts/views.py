@@ -1,7 +1,8 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
-from .forms import SignupForm, LoginForm, TwoFactorForm
+from .forms import SignupForm, LoginForm, TwoFactorForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -154,6 +155,29 @@ def two_factor_login(request, uidb64, token):
 
 def profile_view(request):
     if request.user.is_authenticated:
-        return render(request, 'profile.html', {'user':request.user})
+        if request.method == "POST":
+            u_form = UserUpdateForm(request.POST, instance=request.user)
+            p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+            email = parse_email(str(u_form['email']))
+            try:
+                user = User.objects.get(email=email)
+                if not user == request.user:
+                    print('exist')
+                    u_form = UserUpdateForm(instance=request.user)
+                    p_form = ProfileUpdateForm(instance=request.user.profile)
+                    return render(request, 'profile.html', {'user':request.user, 'u_form':u_form, 'p_form':p_form, 'email_busy':True})
+            except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+                user = None
+            if u_form.is_valid() and p_form.is_valid():
+                print('valid')
+                u_form.save()
+                p_form.save()
+                messages.success(request, f'Your account has been updated!')
+                return redirect('profile')
+        else:
+            print('meh')
+            u_form = UserUpdateForm(instance=request.user)
+            p_form = ProfileUpdateForm(instance=request.user.profile)
+            return render(request, 'profile.html', {'user':request.user, 'u_form':u_form, 'p_form':p_form, 'email_busy':False})
     else:
         return HttpResponse('You are not logged in')
