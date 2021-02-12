@@ -195,7 +195,8 @@ class Crossing_conveyor():
         self.laser = laser_out
         self.stop_tag = stop_tag        # barrier 
         self.wait_time = wait_time
-
+        
+        self.tasks = asyncio.Queue()
         self.directions = {'forward': self.forward, 'back': self.back, 'left': self.left, 'right': self.right }
     
     async def accept_to(self, direction):
