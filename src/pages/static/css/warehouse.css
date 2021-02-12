@@ -1,0 +1,28 @@
+.busy{
+    background-color: #A66138 !important;
+}
+
+.warehouse{
+    background-color: transparent;
+}
+
+td{
+    background-color: #B7C7FF !important;
+}
+
+td:hover{
+    background-color: #b7c7ffa9 !important;
+}
+
+.busy:hover{
+    background-color: #8d522f !important;
+}
+
+.empty_count{
+    background-color: #B7C7FF;
+    color:#000 i !important;
+}
+
+.select{
+    width:200px
+}

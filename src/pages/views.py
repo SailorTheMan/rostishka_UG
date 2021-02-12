@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from .forms import PartnerForm, CallMeForm, CompanyForm
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
-from .db_connector import get_schedule
+from .db_connector import get_schedule, get_warehouse, get_report, get_database
+
 
 def home_view(request, *args, **kwargs):
     if request.method == 'POST':
@@ -73,7 +74,21 @@ def about_view(request, *args, **kwargs):
 
 
 def warehouse_view(request, *args, **kwargs):
-    return render(request, "warehouse.html", {})
+    empty_count, warehouse = get_warehouse()
+    model_count, manuf_count, date_count, database = get_database()
+    print(model_count)
+    return render(request, "warehouse.html", {
+        'warehouses':warehouse,
+        'empty_count':empty_count,
+        'database':database,
+        'model_count':model_count,
+        'manuf_count':manuf_count,
+        'date_count':date_count,
+    })
+
+def downloadcsv_view(request):
+    report_file = get_report()
+    return FileResponse(open(report_file, 'rb'))
 
 def schedule_view(request, *args, **kwargs):
     schedule = get_schedule()

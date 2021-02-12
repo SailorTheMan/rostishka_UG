@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block link %}
+  <link rel="stylesheet" href="{% static 'css/warehouse.css' %%}">
+{% endblock link %}
+
+{% block content %}
+<div class="warehouse">
+  <div class="container">
+    <h2 class='text-center my-5'>Автоматизация склада</h2>
+    {% for warehouse in warehouses %}
+    <div class="row my-5">
+      <div class="col">
+        <table class="table table-bordered text-center">
+          <thead>
+              <tr>
+              <th scope="col"></th>
+              <th scope="col">1</th>
+              <th scope="col">2</th>
+              <th scope="col">3</th>
+              <th scope="col">4</th>
+              <th scope="col">5</th>
+              <th scope="col">6</th>
+              <th scope="col">7</th>
+              <th scope="col">8</th>
+              <th scope="col">9</th>
+              </tr>
+          </thead>
+          <tbody>
+          {% for row in warehouse %}
+            <tr>
+              <th scope="row">{{forloop.counter}}</th>
+              {% for cell in row %}
+                <td class='{% if not cell.empty %} busy {% else %} empty {% endif %}' data-bs-toggle="modal" data-bs-target="#cellModel{{ cell.cell_id }}"></td>
+
+                <div class="modal fade" id="cellModel{{cell.cell_id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Ячейка {{cell.cell_id}}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                          {% if not cell.empty %}
+                            <div class="container-sm">
+                              <ul class="list-group">
+                              <li class="list-group-item">ID: {{cell.id}}</li>
+                              <li class="list-group-item">Производитель: {{cell.manuf}}</li>
+                              <li class="list-group-item">Название: {{cell.name}}</li>
+                              <li class="list-group-item">Модель: {{cell.model}}</li>
+                              <li class="list-group-item">RFID: {{cell.RFID_ID}}</li>
+                            </ul>
+                            </div>
+                          {% else %}
+                            <p>Пусто</p>
+                          {% endif %}
+                        </div>
+                      </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+    <div class="content text-center container my-5">
+      <p>Количество свободных ячеек: <span class="badge empty_count">{{empty_count}}/216</span></p>
+      <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#database">Открыть базу данных склада</a>
+      <div class="row">
+        <p class='mt-5'>Выберите категорию, чтобы отобразить количество</p>
+        <select class="form-select col" name="count" id="count" aria-label="Default select example">
+          <option selected>Выберите категорию</option>
+          <option value="{{model_count}}">Модель</option>
+          <option value="{{manuf_count}}">Производитель</option>
+          <option value="{{date_count}}">Дата</option>
+        </select>
+        <input class="form-control col" id="count_text" type="text" />
+      </div>
+
+        <div class="modal fade" id="database" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-scrollable modal-xl">
+              <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">База данных склада</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                  <div class="container-sm">
+                    <table class="table text-center">
+                      <thead>
+                          <tr>
+                          <th scope="col">ID груза</th>
+                          <th scope="col">Производитель</th>
+                          <th scope="col">Название</th>
+                          <th scope="col">Модель</th>
+                          <th scope="col">RFID</th>
+                          <th scope="col">Ячейка</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                      {% for row in database %}
+                          <tr>
+                          <td>{{row.0}}</td>
+                          <td>{{row.1}}</td>
+                          <td>{{row.2}}</td>
+                          <td>{{row.3}}</td>
+                          <td>{{row.4}}</td>
+                          <td>{{row.5}}</td>
+                          </tr>
+                      {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+
+
+                    <form action="{% url 'downloadcsv' %}" method="post">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-primary" name='report' >Выгрузить базу данных</button>
+                    </form>
+                </div>
+              </div>
+          </div>
+        </div>
+{% comment %} modal ends here {% endcomment %}
+
+
+
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+$(function() { 
+    $('#count').change(function() {
+         $('#count_text').val($(this).val());
+    }).change(); // Trigger the event
+});
+</script>
+{% endblock scripts %}
