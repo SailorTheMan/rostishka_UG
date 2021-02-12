@@ -215,7 +215,18 @@ class Crossing_conveyor():
         await asyncio.sleep(3)
         self.directions[direction].set_value(False)
         return(1)
-        
+
+class Junction:
+    def __init__(self, ct_: Crossing_conveyor, ct_a: Crossing_conveyor):
+        self.ct_a = ct_
+        self.ct_b = ct_a
+        self.tasks = asyncio.Queue()
+    
+    async def transit_ab(self):
+        await asyncio.gather(self.ct_.move_to('left'), self.ct_a.accept_to('right'))
+
+    async def transit_ba(self):
+        await asyncio.gather(self.ct_a.move_to('left'), self.ct_.accept_to('right'))
 
 
 class Crane:

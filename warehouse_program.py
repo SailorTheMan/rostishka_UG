@@ -151,15 +151,28 @@ async def database_routine():
     
     #print('database routine ended')
 
+
+
+async def fuck():
+
+    tsk1 = asyncio.create_task(controller.machines['RC1_4'].transit_next())
+    tsk2 = asyncio.create_task(controller.machines['CT3'].accept_to('forward') )
+    await tsk1
+    await tsk2
+
+
 async def produce_tasks():
     task_issued = True
     cargo_spawn = True
     while True:
             
         await database_routine()
-
+        '''
         if rs2_out.get_value() == False and task_issued:
             task_to_put = asyncio.create_task(controller.machines['RC1_4'].move())
+            await controller.machines['RC1_4'].tasks.put(task_to_put)
+            print('FUCK')
+            task_to_put = asyncio.create_task( fuck())
             await controller.machines['RC1_4'].tasks.put(task_to_put)
             task_issued = False
         # if rs3_in.get_value() == False and not task_issued:
@@ -169,19 +182,20 @@ async def produce_tasks():
             # await controller.machines['RC1_4'].tasks.put(task_to_put)
         #     await controller.machines['CT3'].tasks.put(task_to_put2)
             # task_issued = False
-
+        '''
         await asyncio.sleep(0.4)
         print('producer fired')
 
         
     
-
-
 async def consume_tasks():
     while True:
-        for mchne in controller.machines:
-            await mchne.tasks.get()
+        #for mchne in controller.machines:
+        #    mchne.tasks.get_nowait()
+        #    mchne.tasks.task_done()
         
+        for parcel in storekeeper.active_cargo():
+            await parcel.execute()
         
         await asyncio.sleep(0.2)
         print('consumer fired')
@@ -200,10 +214,6 @@ async def za_loopu():
     #asyncio.gather(produce_tasks(), )
     await produce
     await consume
-
-
-
-
     
     elapsed = time.perf_counter() - start
     print('loop time: ' + elapsed)
@@ -365,6 +375,12 @@ if __name__ == '__main__':
     CT3B    = controller.attach_machine('CT3B', fio.Crossing_conveyor(ct3b_plus, ct3b_min, ct3b_left, ct3b_right, cs_3b, rs3b_out, wait_time=3.5))
     CT4     = controller.attach_machine('CT4', fio.Crossing_conveyor(ct4_plus, ct4_min, ct4_left, ct4_right, cs_4, rs4_out, wait_time=2.1))
     CT4B    = controller.attach_machine('CT4B', fio.Crossing_conveyor(ct4b_plus, ct4b_min, ct4b_left, ct4b_right, cs_4b, rs4b_out, wait_time=3.5))
+    #endregion
+
+
+    #region JUNCTIONS
+    JN1     = controller.attach_machine('JN1', fio.Junction(CT1, CT1A))
+
     #endregion
     
         ##  CRANES
