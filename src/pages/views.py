@@ -104,7 +104,8 @@ def schedule_view(request, *args, **kwargs):
     return render(request, "schedule.html", {'schedule':schedule})
 
 def stream_view(request, *args, **kwargs):
-    stream_url = 'https://www.youtube.com/embed/7qXQ75fSd6s'
+    stream_url = 'https://www.youtube.com/embed/61UhYGRbadM'
+    
     if not request.user.is_authenticated:
         is_admin = False
     else:

@@ -14,7 +14,7 @@ import cargo
 import FactoryController as fio
 
         # loopback
-SIM_ADDRESS = 'http://loopback:7410'    #my local VM address
+SIM_ADDRESS = 'http://192.168.220.129:7410'    #my local VM address
 
 #region spawn_item functions
 
